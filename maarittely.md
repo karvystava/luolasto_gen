@@ -1,4 +1,4 @@
-# Määrittelydokumetti
+# Määrittelydokumentti
 
 - Käytän Pythonia, en hallitse muita koodikieliä. Kuulun tietojenkäsittelytieteen kandidaatin opinto-ohjelmaan.
 - Tulen toteuttamaan luolastojen generoimiseen algoritmin, joka koostuu useammasta eri algoritmista.
