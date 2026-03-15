@@ -1,2 +1,0 @@
-# luolasto_gen
-Harjoitustyö
