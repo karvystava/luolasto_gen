@@ -10,6 +10,9 @@ class StartScreen:
 
     def loop(self):
         while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit()
             self.display_screen()
 
     def display_screen(self):
@@ -21,4 +24,5 @@ class StartScreen:
 
 
 if __name__ == "__main__":
+    print("moi")
     StartScreen()
