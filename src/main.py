@@ -16,8 +16,8 @@ class DungeonGen():
         pygame.display.set_caption("Dungeon Generator")
         self.objects = []
         self.rooms = []
-        self.create_button(600, 450, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.switchtomap)
-        self.create_button(30, 60, 120, 30, self.font, self.screen, 'dungeon', 'New Map', self.switchtomap)
+        self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.switchtomap)
+        self.create_button(30, 60, 100, 30, self.font, self.screen, 'dungeon', 'New', self.switchtomap)
 
         self.loop()
 
