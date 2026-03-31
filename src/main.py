@@ -7,7 +7,7 @@ class DungeonGen():
         pygame.init()
         self.fps = 60
         self.fpsClock = pygame.time.Clock()
-        self.screen_width = 1700
+        self.screen_width = 1000
         self.screen_height = 1000
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         self.font = pygame.font.SysFont("Arial", 24)
@@ -15,7 +15,9 @@ class DungeonGen():
 
         pygame.display.set_caption("Dungeon Generator")
         self.objects = []
+        self.rooms = []
         self.create_button(600, 450, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.switchtomap)
+        self.create_button(30, 60, 120, 30, self.font, self.screen, 'dungeon', 'New Map', self.switchtomap)
 
         self.loop()
 
@@ -33,12 +35,13 @@ class DungeonGen():
     def create_button(self, x, y, width, height, font, screen, state, buttonText='Button', onclickFunction=None, onePress=False):
         self.objects.append(Button(x, y, width, height, font, screen, state, buttonText, onclickFunction, onePress))
 
-    def create_room(self, x, y, width, height, screen, color, state):
-        self.objects.append(Room(x, y, width, height, screen, color, state))
+    def create_room(self, x, y, width, height, screen, color):
+        self.rooms.append(Room(x, y, width, height, screen, color))
 
     def switchtomap(self):
+        self.rooms.clear()
         self.state = 'dungeon'
-        self.gen_rooms(20, 20, '#ffffff')
+        self.gen_rooms(20, 20, '#CCE5FF')
 
     def display_screen(self):
         if self.state == 'startscreen':
@@ -51,62 +54,52 @@ class DungeonGen():
             title_txt = "Dungeon Generator (map)"
             title = self.font.render(title_txt, True, (255,0,0))
             self.screen.blit(title, (30,10))
+            for room in self.rooms:
+                room.render()
 
         for object in self.objects:
             if object.state == self.state:
                 object.render()
 
+
         pygame.display.flip()
 
 
     def gen_rooms(self, number_of_rooms, buffer, color):
-        print("start of generating")
         rooms = []
         for _ in range(number_of_rooms-1):
-            print("start of iteration")
             while True:
-                print(rooms)
-                print("start of loop")
                 again = False
-                room_height = randint(20,200)
-                room_width = randint(20,200)
-                x = randint(20, self.screen_width-buffer-room_width)
-                y = randint(20, self.screen_height-buffer-room_height)
+                h = randint(20,200)
+                w = randint(20,200)
+                x = randint(20, self.screen_width-buffer-w)
+                y = randint(20, self.screen_height-buffer-h)
 
-                print(room_height, room_width, x, y)
                 for room in rooms:
-                    x_mez = sorted((x, room["x"]), reverse=True)
-                    y_mez = sorted((y, room["y"]), reverse=True)
-                    print(x_mez)
-                    print(y_mez)
-                    print(x_mez[0] - x_mez[1] - room_width)
-                    print(y_mez[0] - y_mez[1] - room_height)
-                    if x_mez[0] - x_mez[1] - room_width < 0 and y_mez[0] - y_mez[1] - room_height < 0:
+                    x_mez = sorted([(x, w), (room["x"], room["w"])], key=lambda x:x[0], reverse=True)
+                    y_mez = sorted([(y, h), (room["y"], room["h"])], key=lambda x:x[0], reverse=True)
+                    if x_mez[0][0] - x_mez[1][0] - x_mez[1][1] < 0 and y_mez[0][0] - y_mez[1][0] - y_mez[1][1] < 0:
                         again = True
-                        print("overlap found")
                         break
 
                 if again == True:
-                    print("needed new room")
                     continue
-                room_dict = {"h":room_height, "w":room_width, "x":x, "y":y}
+                room_dict = {"h":h, "w":w, "x":x, "y":y}
                 rooms.append(room_dict)
-                print("room should be good to go")
                 break
         
-        print("starting to add rooms")
         for room in rooms:
-            self.create_room(room["x"], room["y"], room["w"], room["h"], self.screen, color, 'dungeon')
-        print("rooms added")
+            self.create_room(room["x"], room["y"], room["w"], room["h"], self.screen, color)
 
 
 class Room():
-    def __init__(self, x, y, width, height, screen, color, state):
+    def __init__(self, x, y, width, height, screen, color):
         self.screen = screen
-        self.state = state
         self.room = pygame.Rect((x, y, width, height))
         self.buffer = pygame.Rect((x+5, y+5, width+5, height+5))
         self.color = color
+        self.x = x
+        self.y = y
 
     def process(self):
         pass
