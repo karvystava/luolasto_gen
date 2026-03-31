@@ -12,7 +12,7 @@ class DungeonGen():
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         self.font = pygame.font.SysFont("Arial", 24)
         self.state = 'startscreen'
-
+        self.mapSurface = pygame.Surface((980, 980))
         pygame.display.set_caption("Dungeon Generator")
         self.objects = []
         self.rooms = []
@@ -32,16 +32,16 @@ class DungeonGen():
             self.display_screen()
             self.fpsClock.tick(self.fps)
 
-    def create_button(self, x, y, width, height, font, screen, state, buttonText='Button', onclickFunction=None, onePress=False):
-        self.objects.append(Button(x, y, width, height, font, screen, state, buttonText, onclickFunction, onePress))
-
-    def create_room(self, x, y, width, height, screen, color):
-        self.rooms.append(Room(x, y, width, height, screen, color))
-
     def switchtomap(self):
         self.rooms.clear()
         self.state = 'dungeon'
-        self.gen_rooms(20, 20, '#CCE5FF')
+        self.gen_rooms(15, 20, '#CCE5FF')
+
+    def create_button(self, x, y, width, height, font, screen, state, buttonText='Button', onclickFunction=None, onePress=False):
+        self.objects.append(Button(x, y, width, height, font, screen, state, buttonText, onclickFunction, onePress))
+
+    def create_room(self, x, y, width, height, screen, color, buffer):
+        self.rooms.append(Room(x, y, width, height, screen, color, buffer))
 
     def display_screen(self):
         if self.state == 'startscreen':
@@ -61,7 +61,6 @@ class DungeonGen():
             if object.state == self.state:
                 object.render()
 
-
         pygame.display.flip()
 
 
@@ -70,10 +69,10 @@ class DungeonGen():
         for _ in range(number_of_rooms-1):
             while True:
                 again = False
-                h = randint(20,200)
-                w = randint(20,200)
-                x = randint(20, self.screen_width-buffer-w)
-                y = randint(20, self.screen_height-buffer-h)
+                h = randint(70,220)
+                w = randint(70,220)
+                x = randint(20, self.screen_width-20-w)
+                y = randint(20, self.screen_height-20-h)
 
                 for room in rooms:
                     x_mez = sorted([(x, w), (room["x"], room["w"])], key=lambda x:x[0], reverse=True)
@@ -89,20 +88,17 @@ class DungeonGen():
                 break
         
         for room in rooms:
-            self.create_room(room["x"], room["y"], room["w"], room["h"], self.screen, color)
+            self.create_room(room["x"], room["y"], room["w"], room["h"], self.screen, color, buffer)
 
 
 class Room():
-    def __init__(self, x, y, width, height, screen, color):
+    def __init__(self, x, y, width, height, screen, color, buffer):
         self.screen = screen
-        self.room = pygame.Rect((x, y, width, height))
-        self.buffer = pygame.Rect((x+5, y+5, width+5, height+5))
+        self.room = pygame.Rect((x+buffer, y+buffer, width-buffer, height-buffer))
+        self.buffer = pygame.Rect((x, y, width+buffer, height+buffer))
         self.color = color
         self.x = x
         self.y = y
-
-    def process(self):
-        pass
 
     def render(self):
         pygame.draw.rect(self.screen, (0,0,70), self.buffer)
