@@ -5,4 +5,4 @@ veivät opiskeluaikaa, mutta seuraavaksi teen Boywer-Watson algoritmin pseudokoo
 perusteella toimivaksi. Pyrin olemaan vauhdikas sen kanssa, jotta kerkeäisi vertais-
 arviointeihin.
 
-Työaikaa viikolla ehkä arviolta 5-6h.
+Työaikaa viikolla ehkä arviolta 3-4h.
