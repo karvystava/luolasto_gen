@@ -1,10 +1,13 @@
 import pygame
 import sys
 from random import randint
+import math
+from circumcenter import center
 
 class DungeonGen():
     def __init__(self):
         pygame.init()
+        self.show_triangulation = True
         self.fps = 60
         self.fpsClock = pygame.time.Clock()
         self.screen_width = 1000
@@ -16,6 +19,8 @@ class DungeonGen():
         pygame.display.set_caption("Dungeon Generator")
         self.objects = []
         self.rooms = []
+        self.mids = []
+        self.passages = []
         self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.switchtomap)
         self.create_button(30, 60, 100, 30, self.font, self.screen, 'dungeon', 'New', self.switchtomap)
 
@@ -34,8 +39,12 @@ class DungeonGen():
 
     def switchtomap(self):
         self.rooms.clear()
+        self.mids.clear()
+        self.passages.clear()
         self.state = 'dungeon'
-        self.gen_rooms(15, 20, '#CCE5FF')
+        self.make_rooms(15, 20, '#CCE5FF')
+        self.create_passages(self.triangulation(self.mids),)
+
 
     def create_button(self, x, y, width, height, font, screen, state, buttonText='Button', onclickFunction=None, onePress=False):
         self.objects.append(Button(x, y, width, height, font, screen, state, buttonText, onclickFunction, onePress))
@@ -56,6 +65,10 @@ class DungeonGen():
             self.screen.blit(title, (30,10))
             for room in self.rooms:
                 room.render()
+                if self.show_triangulation:
+                    room.render_mid()
+            for passage in self.passages:
+                passage.render()
 
         for object in self.objects:
             if object.state == self.state:
@@ -64,7 +77,7 @@ class DungeonGen():
         pygame.display.flip()
 
 
-    def gen_rooms(self, number_of_rooms, buffer, color):
+    def make_rooms(self, number_of_rooms, buffer, color):
         rooms = []
         for _ in range(number_of_rooms-1):
             while True:
@@ -89,6 +102,69 @@ class DungeonGen():
         
         for room in rooms:
             self.create_room(room["x"], room["y"], room["w"], room["h"], self.screen, color, buffer)
+            self.mids.append((room["x"]+room["w"]/2, room["y"]+room["h"]/2))
+    
+
+    def triangulation(self, room_points): 
+        supertri_points = ((0,0), (0, self.screen_height*2), (self.screen_width*2,0))
+        supertri_edges = (((0,0), (0,self.screen_height*2)), ((0,0), (self.screen_width*2,0)), ((self.screen_width*2,0), (0,self.screen_height*2)))
+        supertri_circumcenter = center((0,0), (0, self.screen_height*2), (self.screen_width*2,0))
+
+        supertri = {'circum':(supertri_circumcenter, math.dist((0,0), supertri_circumcenter)), 'points':set(supertri_points)}
+        triangulation = {}
+        edges = set()
+        triangulation[supertri_edges] = supertri
+
+        for point in room_points:
+
+            badTriangles = set()
+            badEdges = {}
+            for triangle in triangulation:
+                if math.dist(point, triangulation[triangle]['circum'][0]) <= triangulation[triangle]['circum'][1]:
+                    badTriangles.add(triangle)
+                    for edge in triangle:
+                        if edge not in badEdges:
+                            badEdges[edge] = 0
+                        badEdges[edge] += 1
+
+            polygon = set()
+            for triangle in badTriangles:
+                for edge in triangle:
+                    if badEdges[edge] == 1:
+                        polygon.add(edge)
+                triangulation.pop(triangle)
+
+            for edge in polygon:
+                new_edges = tuple(sorted((tuple(sorted(edge)), tuple(sorted((edge[0], point))), tuple(sorted((edge[1], point))))))
+                new_circ = center(edge[0], edge[1], point)
+                triangulation[new_edges] = {'circum':(new_circ, math.dist(new_circ, point)), 'points':set((edge[0], edge[1], point))}
+        
+        for triangle in triangulation:
+            if len(triangulation[triangle]['points'] - set(supertri_points)) == 3:
+                edges.update(triangle)
+                print("all edges:", edges)
+
+        print("triangulation done")
+        return edges
+
+    def create_passages(self, passages):
+        for edge in passages:
+            print("edge in question:", edge)
+            print("edge[0]:", edge[0])
+            print("edge[1]:", edge[1])
+            self.passages.append(Passage(edge[0], edge[1], '#80FF00', self.screen, 2))
+
+class Passage():
+    def __init__(self, a, b, color, screen, width):
+        self.a = a
+        self.b = b
+        self.color = color
+        self.screen = screen
+        self.w = width
+        self.color = color
+
+    def render(self):
+        pygame.draw.line(self.screen, self.color, self.a, self.b, self.w)
 
 
 class Room():
@@ -99,10 +175,14 @@ class Room():
         self.color = color
         self.x = x
         self.y = y
+        self.mid = (x+width/2, y+height/2)
 
     def render(self):
         pygame.draw.rect(self.screen, (0,0,70), self.buffer)
         pygame.draw.rect(self.screen, self.color, self.room)
+    
+    def render_mid(self):
+        pygame.draw.circle(self.screen, '#FF66B2', self.mid, 3)
 
 
 class Button():
