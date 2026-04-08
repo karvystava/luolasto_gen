@@ -112,7 +112,7 @@ class DungeonGen():
         self.state = 'dungeon'
 
         for key in self.objects:
-            if key != 'button':
+            if key != 'buttons':
                 self.objects[key].clear()
 
 
