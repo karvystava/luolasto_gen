@@ -70,10 +70,10 @@ class DungeonGen():
 
             bad_triangles = set()
             bad_edges = {}
-            for triangle in triangulation:
-                if math.dist(point, triangulation[triangle]['circum'][0]) <= triangulation[triangle]['circum'][1]:
-                    bad_triangles.add(triangle)
-                    for edge in triangle:
+            for tri_edges, tri in triangulation.items():
+                if math.dist(point, tri['circum'][0]) <= tri['circum'][1]:
+                    bad_triangles.add(tri_edges)
+                    for edge in tri_edges:
                         if edge not in bad_edges:
                             bad_edges[edge] = 0
                         bad_edges[edge] += 1
@@ -90,9 +90,9 @@ class DungeonGen():
                 new_circ = center(edge[0], edge[1], point)
                 triangulation[new_edges] = {'circum':(new_circ, math.dist(new_circ, point)), 'points':set((edge[0], edge[1], point))}
 
-        for triangle in triangulation:
-            if len(triangulation[triangle]['points'] - set(supertri_points)) == 3:
-                edges.update(triangle)
+        for tri_edges, tri in triangulation.items():
+            if len(tri['points'] - set(supertri_points)) == 3:
+                edges.update(tri_edges)
 
         return edges
 
@@ -111,9 +111,9 @@ class DungeonGen():
     def new_map(self):
         self.state = 'dungeon'
 
-        for key in self.objects:
+        for key, obs in self.objects.items():
             if key != 'buttons':
-                self.objects[key].clear()
+                obs.clear()
 
 
         self.make_rooms(15, 20, '#CCE5FF')
