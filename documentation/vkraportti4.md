@@ -1,8 +1,7 @@
-Hoidin huoneiten satunnoinnin kunnolla loppuun, ja aloittelin Boywer-Watson
-algoritmia. Käytin aikaa algoritmin ymmärtämiseen, ja tähän mennessä koodiin kerkesin
-lisätä ja visualisoida vain algoritmiin tulevan pistelistan. Pääsiäisen perhemenot
-veivät opiskeluaikaa, mutta seuraavaksi teen Boywer-Watson algoritmin pseudokoodin
-perusteella toimivaksi. Pyrin olemaan vauhdikas sen kanssa, jotta kerkeäisi vertais-
-arviointeihin.
+Hoidin huoneiten satunnoinnin kunnolla loppuun, tein Boywer-Watsonin algoritmin, lisäsin pylintin ja sen kanssa ja yleisesti siivoilin ja rekonfiguroin koodia pienillä tavoilla, tein toteutus- ja testausraportit. Jatkuvasti opin ja hahmotan pygamen käyttöä paremmin, sekä matemaattisten funktioiden soveltaminen python-koodiin oli mielenkiintoista.
 
-Työaikaa viikolla ehkä arviolta 3-4h.
+Yritin myös tehdä unittestejä, mutta en ymmärrä, miten niitä tai muuta testausta tulisi tehdä pygamen vuoksi. Netistä myöskään löytynyt hyvää vastausta?
+
+Seuraavaksi siivoan huoneiden välisistä reiteistä osan pois, jotta tulisi umpikujia. Eli ensin teen sellaisen algoritmin, että kaikkiin huoneisiin väkisin pääsee jotenkin, ja sitten siivoan siitä osan pois niin, ettei kuitenkaan kaikkialle pääse helposti.
+
+Työaikaa viikolla arviolta 15h.
