@@ -1,8 +1,6 @@
-from random import randint
 import sys
-import math
 import pygame
-from circumcenter import center
+from gens import gen_rooms, triangulation
 
 class DungeonGen():
     def __init__(self):
@@ -28,73 +26,10 @@ class DungeonGen():
         self.loop()
 
 
-    def make_rooms(self, number_of_rooms, buffer, color):
-        rooms = []
-        for _ in range(number_of_rooms-1):
-            while True:
-                again = False
-                h = randint(70,220)
-                w = randint(70,220)
-                x = randint(20, self.screen_w-20-w)
-                y = randint(20, self.screen_h-20-h)
-
-                for room in rooms:
-                    x_mez = sorted([(x, w), (room["x"], room["w"])], key=lambda x:x[0], reverse=True)
-                    y_mez = sorted([(y, h), (room["y"], room["h"])], key=lambda x:x[0], reverse=True)
-                    if x_mez[0][0] - x_mez[1][0] - x_mez[1][1] < 0 and y_mez[0][0] - y_mez[1][0] - y_mez[1][1] < 0:
-                        again = True
-                        break
-
-                if again:
-                    continue
-                room_dict = {"h":h, "w":w, "x":x, "y":y}
-                rooms.append(room_dict)
-                break
-
+    def make_rooms(self, rooms, buffer, color):
         for room in rooms:
             self.create_room(room["x"], room["y"], room["w"], room["h"], self.screen, color, buffer)
             self.objects['mids'].append((room["x"]+room["w"]/2, room["y"]+room["h"]/2))
-
-
-    def triangulation(self, room_points):
-        supertri_points = ((0,0), (0, self.screen_h*2), (self.screen_w*2,0))
-        supertri_edges = (((0,0), (0,self.screen_h*2)), ((0,0), (self.screen_w*2,0)), ((self.screen_w*2,0), (0,self.screen_h*2)))
-        supertri_circumcenter = center((0,0), (0, self.screen_h*2), (self.screen_w*2,0))
-
-        supertri = {'circum':(supertri_circumcenter, math.dist((0,0), supertri_circumcenter)), 'points':set(supertri_points)}
-        triangulation = {}
-        edges = set()
-        triangulation[supertri_edges] = supertri
-
-        for point in room_points:
-
-            bad_triangles = set()
-            bad_edges = {}
-            for tri_edges, tri in triangulation.items():
-                if math.dist(point, tri['circum'][0]) <= tri['circum'][1]:
-                    bad_triangles.add(tri_edges)
-                    for edge in tri_edges:
-                        if edge not in bad_edges:
-                            bad_edges[edge] = 0
-                        bad_edges[edge] += 1
-
-            polygon = set()
-            for triangle in bad_triangles:
-                for edge in triangle:
-                    if bad_edges[edge] == 1:
-                        polygon.add(edge)
-                triangulation.pop(triangle)
-
-            for edge in polygon:
-                new_edges = tuple(sorted((tuple(sorted(edge)), tuple(sorted((edge[0], point))), tuple(sorted((edge[1], point))))))
-                new_circ = center(edge[0], edge[1], point)
-                triangulation[new_edges] = {'circum':(new_circ, math.dist(new_circ, point)), 'points':set((edge[0], edge[1], point))}
-
-        for tri_edges, tri in triangulation.items():
-            if len(tri['points'] - set(supertri_points)) == 3:
-                edges.update(tri_edges)
-
-        return edges
 
 
     def create_button(self, x, y, width, height, font, screen, state, button_text='Button', click_function=None, one_press=False):
@@ -116,8 +51,8 @@ class DungeonGen():
                 obs.clear()
 
 
-        self.make_rooms(15, 20, '#CCE5FF')
-        self.create_passages(self.triangulation(self.objects['mids']))
+        self.make_rooms(gen_rooms(15, self.screen_h, self.screen_w), 20, '#CCE5FF')
+        self.create_passages(triangulation(self.objects['mids'], self.screen_h, self.screen_w))
 
 
     def loop(self):
