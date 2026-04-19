@@ -68,3 +68,31 @@ def triangulation(room_points, screen_h, screen_w):
             edges.update(tri_edges)
 
     return edges
+
+
+def prim(passages, number_of_rooms):
+    mst = set()
+
+    first_vertex = passages[0].a
+    print('first vertex:', first_vertex)
+
+    edges = {edge : first_vertex for edge in [edge for edge in passages if edge.a == first_vertex or edge.b == first_vertex]}
+    print('first vertex edges', edges)
+    vertex = first_vertex
+
+    while len(mst) < number_of_rooms-1:
+        print("mst length", len(mst))
+        print("room number", number_of_rooms)
+        print(min(edges.items(), key=lambda item: item[0].d))
+        min_edge, vertex = min(edges.items(), key=lambda item: item[0].d)
+        new_vertex = min_edge.a if min_edge.a != vertex else min_edge.b
+
+        mst.add((vertex, new_vertex))
+        for edge in [edge for edge in passages if edge.a == new_vertex or edge.b == new_vertex]:
+            if (edge.a, edge.b) not in mst or (edge.b, edge.a) not in mst:
+                edges[edge] = new_vertex
+
+        edges.pop(min_edge)
+        vertex = new_vertex
+
+    return mst

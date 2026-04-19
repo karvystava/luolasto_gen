@@ -1,6 +1,7 @@
 import sys
 import pygame
-from gens import gen_rooms, triangulation
+import math
+from gens import gen_rooms, triangulation, prim
 
 class DungeonGen():
     def __init__(self):
@@ -18,7 +19,8 @@ class DungeonGen():
 
         self.state = 'startscreen'
         self.show_triangulation = True
-        self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':[]}
+        self.show_prim = True
+        self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':[], 'tree':[]}
 
         self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.new_map)
         self.create_button(30, 60, 100, 30, self.font, self.screen, 'dungeon', 'New', self.new_map)
@@ -42,6 +44,10 @@ class DungeonGen():
         for edge in passages:
             self.objects['passages'].append(Passage(edge[0], edge[1], '#80FF00', self.screen, 2))
 
+    def create_mst(self, mst):
+        for edge in mst:
+            self.objects['tree'].append(Passage(edge[0], edge[1], '#FF33FF', self.screen, 2))
+
 
     def new_map(self):
         self.state = 'dungeon'
@@ -53,6 +59,7 @@ class DungeonGen():
 
         self.make_rooms(gen_rooms(15, self.screen_h, self.screen_w), 20, '#CCE5FF')
         self.create_passages(triangulation(self.objects['mids'], self.screen_h, self.screen_w))
+        self.create_mst(prim(self.objects['passages'], len(self.objects['rooms'])))
 
 
     def loop(self):
@@ -91,11 +98,16 @@ class DungeonGen():
             for passage in self.objects['passages']:
                 passage.render()
 
+            if self.show_prim:
+                for passage in self.objects['tree']:
+                    passage.render()
+
         for button in self.objects['buttons']:
             if button.state == self.state:
                 button.render()
 
         pygame.display.flip()
+
 
 class Passage():
     def __init__(self, a, b, color, screen, width):
@@ -105,6 +117,7 @@ class Passage():
         self.screen = screen
         self.w = width
         self.color = color
+        self.d = math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2)
 
     def render(self):
         pygame.draw.line(self.screen, self.color, self.a, self.b, self.w)
