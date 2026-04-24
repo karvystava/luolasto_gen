@@ -21,7 +21,8 @@ class DungeonGen():
         self.show_mid = False
         self.show_triangulation = False
         self.show_prim = True
-        self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':[], 'tree':[]}
+        self.number_of_rooms = 25
+        self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':{}, 'tree':{}}
 
         self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.new_map)
         self.create_button(30, 60, 100, 30, self.font, self.screen, 'dungeon', 'New', self.new_map)
@@ -42,12 +43,23 @@ class DungeonGen():
         self.objects['rooms'].append(Room(x, y, width, height, screen, color, buffer))
 
     def create_passages(self, passages):
+        self.objects['passages']['psg'] = []
+        self.objects['passages']['edges'] = set()
         for edge in passages:
-            self.objects['passages'].append(Passage(edge[0], edge[1], '#80FF00', self.screen, 2))
+            self.objects['passages']['psg'].append(Passage(edge[0], edge[1], '#80FF00', self.screen, 2))
+            self.objects['passages']['edges'].add(edge)
 
     def create_mst(self, mst):
+        self.objects['tree']['psg'] = []
+        self.objects['tree']['edges'] = set()
         for edge in mst:
-            self.objects['tree'].append(Passage(edge[0], edge[1], '#FF007F', self.screen, 2))
+            self.objects['tree']['psg'].append(Passage(edge[0], edge[1], '#FF007F', self.screen, 2))
+            self.objects['tree']['edges'].add(edge)
+
+        extra = list(self.objects['passages']['edges'] - self.objects['tree']['edges'])
+        for i in range(len(extra)//5):
+            self.objects['tree']['psg'].append(Passage(extra[i][0], extra[i][1], '#FF007F', self.screen, 2))
+
 
 
     def new_map(self):
@@ -58,9 +70,9 @@ class DungeonGen():
                 obs.clear()
 
 
-        self.make_rooms(gen_rooms(15, self.screen_h, self.screen_w), 20, '#CCE5FF')
+        self.make_rooms(gen_rooms(self.number_of_rooms, self.screen_h, self.screen_w), 20, '#CCE5FF')
         self.create_passages(triangulation(self.objects['mids'], self.screen_h, self.screen_w))
-        self.create_mst(prim(self.objects['passages'], len(self.objects['rooms'])))
+        self.create_mst(prim(self.objects['passages']['psg'], len(self.objects['rooms'])))
 
 
     def loop(self):
@@ -97,11 +109,11 @@ class DungeonGen():
                     room.render_mid()
 
             if self.show_triangulation:
-                for passage in self.objects['passages']:
+                for passage in self.objects['passages']['psg']:
                     passage.render()
 
             if self.show_prim:
-                for passage in self.objects['tree']:
+                for passage in self.objects['tree']['psg']:
                     passage.render()
 
         for button in self.objects['buttons']:
