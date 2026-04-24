@@ -18,7 +18,8 @@ class DungeonGen():
         self.fps = 60
 
         self.state = 'startscreen'
-        self.show_triangulation = True
+        self.show_mid = False
+        self.show_triangulation = False
         self.show_prim = True
         self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':[], 'tree':[]}
 
@@ -46,7 +47,7 @@ class DungeonGen():
 
     def create_mst(self, mst):
         for edge in mst:
-            self.objects['tree'].append(Passage(edge[0], edge[1], '#FF33FF', self.screen, 2))
+            self.objects['tree'].append(Passage(edge[0], edge[1], '#FF007F', self.screen, 2))
 
 
     def new_map(self):
@@ -92,11 +93,12 @@ class DungeonGen():
 
             for room in self.objects['rooms']:
                 room.render()
-                if self.show_triangulation:
+                if self.show_mid:
                     room.render_mid()
 
-            for passage in self.objects['passages']:
-                passage.render()
+            if self.show_triangulation:
+                for passage in self.objects['passages']:
+                    passage.render()
 
             if self.show_prim:
                 for passage in self.objects['tree']:

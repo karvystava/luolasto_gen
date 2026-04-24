@@ -72,27 +72,47 @@ def triangulation(room_points, screen_h, screen_w):
 
 def prim(passages, number_of_rooms):
     mst = set()
+    vertices = set()
 
     first_vertex = passages[0].a
-    print('first vertex:', first_vertex)
+    print('1. vertex:', first_vertex)
 
     edges = {edge : first_vertex for edge in [edge for edge in passages if edge.a == first_vertex or edge.b == first_vertex]}
-    print('first vertex edges', edges)
+    for edge in edges:
+        print(edge.a, edge.b, edges[edge])
+    print()
     vertex = first_vertex
+    i = 0
 
     while len(mst) < number_of_rooms-1:
-        print("mst length", len(mst))
-        print("room number", number_of_rooms)
-        print(min(edges.items(), key=lambda item: item[0].d))
         min_edge, vertex = min(edges.items(), key=lambda item: item[0].d)
+
+        a = vertex
         new_vertex = min_edge.a if min_edge.a != vertex else min_edge.b
 
+
+        if new_vertex in vertices:
+            edges.pop(min_edge)
+            continue
+
         mst.add((vertex, new_vertex))
+        vertices.add(vertex)
+        vertices.add(new_vertex)
+
+        for edge, vertex in edges.items():
+            a = vertex
+            b = edge.a if edge.a != a else edge.b
+    
         for edge in [edge for edge in passages if edge.a == new_vertex or edge.b == new_vertex]:
-            if (edge.a, edge.b) not in mst or (edge.b, edge.a) not in mst:
+            a = new_vertex
+            b = edge.a if edge.a != new_vertex else edge.b
+            if b not in vertices:
                 edges[edge] = new_vertex
 
         edges.pop(min_edge)
+
+
         vertex = new_vertex
+        i += 1
 
     return mst
