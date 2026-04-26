@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, randrange
 import math
 from circumcenter import center
 
@@ -8,10 +8,10 @@ def gen_rooms(number_of_rooms, screen_w, screen_h):
     for _ in range(number_of_rooms-1):
         while True:
             again = False
-            h = randint(70,220)
-            w = randint(70,220)
-            x = randint(20, screen_w-20-w)
-            y = randint(20, screen_h-20-h)
+            h = randrange(50,250,50)
+            w = randrange(50,250,50)
+            x = randrange(20, screen_w-20-w)
+            y = randrange(20, screen_h-20-h)
 
             for room in rooms:
                 x_mez = sorted([(x, w), (room["x"], room["w"])], key=lambda x:x[0], reverse=True)

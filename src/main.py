@@ -21,7 +21,7 @@ class DungeonGen():
         self.show_mid = False
         self.show_triangulation = False
         self.show_prim = True
-        self.number_of_rooms = 25
+        self.number_of_rooms = 30
         self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':{}, 'tree':{}}
 
         self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.new_map)
