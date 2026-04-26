@@ -1,6 +1,6 @@
 from random import randint, randrange
 import math
-from circumcenter import center
+from formulae import center
 
 
 def gen_rooms(number_of_rooms, screen_w, screen_h):
@@ -8,8 +8,8 @@ def gen_rooms(number_of_rooms, screen_w, screen_h):
     for _ in range(number_of_rooms-1):
         while True:
             again = False
-            h = randrange(50,250,50)
-            w = randrange(50,250,50)
+            h = randrange(64,256,32)
+            w = randrange(64,256,32)
             x = randrange(20, screen_w-20-w)
             y = randrange(20, screen_h-20-h)
 

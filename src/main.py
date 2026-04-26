@@ -21,7 +21,7 @@ class DungeonGen():
         self.show_mid = False
         self.show_triangulation = False
         self.show_prim = True
-        self.number_of_rooms = 30
+        self.number_of_rooms = 20
         self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':{}, 'tree':{}}
 
         self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.new_map)
@@ -70,7 +70,7 @@ class DungeonGen():
                 obs.clear()
 
 
-        self.make_rooms(gen_rooms(self.number_of_rooms, self.screen_h, self.screen_w), 20, '#CCE5FF')
+        self.make_rooms(gen_rooms(self.number_of_rooms, self.screen_h, self.screen_w), 16, '#CCE5FF')
         self.create_passages(triangulation(self.objects['mids'], self.screen_h, self.screen_w))
         self.create_mst(prim(self.objects['passages']['psg'], len(self.objects['rooms'])))
 
