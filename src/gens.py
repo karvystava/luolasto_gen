@@ -112,3 +112,28 @@ def prim(passages, number_of_rooms):
         i += 1
 
     return mst
+
+
+def a_star(start, goal, h):
+    
+    open_list = [start]
+    closed_list = []
+
+    start_g = 0
+    start_h = h(start, goal)
+    start_f = start_g + start_h
+    start_parent = None
+
+    while len(open_list) > 0:
+        open_list.sort()
+        current = open_list[0]
+
+        if current == goal:
+            return reconstruct_path(current)
+        
+        open_list.pop(0)
+        closed_list.append(current)
+
+
+def reconstruct_path():
+    pass

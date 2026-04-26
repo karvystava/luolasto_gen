@@ -1,6 +1,7 @@
 import sys
 import pygame
 import math
+import numpy as np
 from gens import gen_rooms, triangulation, prim
 
 class DungeonGen():
@@ -13,6 +14,7 @@ class DungeonGen():
         self.screen = pygame.display.set_mode((self.screen_w, self.screen_h))
         self.map_surface = pygame.Surface((980, 980))
         self.font = pygame.font.SysFont("Arial", 24)
+        self.grid = np.zeros((30, 30), dtype=int)
 
         self.fps_clock = pygame.time.Clock()
         self.fps = 60
@@ -34,7 +36,9 @@ class DungeonGen():
         for room in rooms:
             self.create_room(room["x"], room["y"], room["w"], room["h"], self.screen, color, buffer)
             self.objects['mids'].append((room["x"]+room["w"]/2, room["y"]+room["h"]/2))
-
+            print(room['x'])
+            print(room['x']+buffer)
+            print((room['x']+40)/32)
 
     def create_button(self, x, y, width, height, font, screen, state, button_text='Button', click_function=None, one_press=False):
         self.objects['buttons'].append(Button(x, y, width, height, font, screen, state, button_text, click_function, one_press))
@@ -71,6 +75,7 @@ class DungeonGen():
 
 
         self.make_rooms(gen_rooms(self.number_of_rooms, self.screen_h, self.screen_w), 16, '#CCE5FF')
+        print(self.grid)
         self.create_passages(triangulation(self.objects['mids'], self.screen_h, self.screen_w))
         self.create_mst(prim(self.objects['passages']['psg'], len(self.objects['rooms'])))
 
@@ -115,6 +120,8 @@ class DungeonGen():
             if self.show_prim:
                 for passage in self.objects['tree']['psg']:
                     passage.render()
+
+            
 
         for button in self.objects['buttons']:
             if button.state == self.state:

@@ -34,3 +34,9 @@ def center(q, p, r):
 
     circumcenter = vertex(a, b, c, e, f, g)
     return circumcenter
+
+def manhattan_distance(a, b):
+    xs = abs(a[0]-b[0])
+    ys = abs(a[1]-b[1])
+    md = xs + ys
+    return md
