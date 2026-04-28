@@ -8,10 +8,10 @@ def gen_rooms(number_of_rooms, screen_w, screen_h):
     for _ in range(number_of_rooms-1):
         while True:
             again = False
-            h = randrange(64,256,32)
-            w = randrange(64,256,32)
-            x = randrange(20, screen_w-20-w)
-            y = randrange(20, screen_h-20-h)
+            h = randrange(48,240,32)
+            w = randrange(48,240,32)
+            x = randrange(20+16, screen_w-20-w, 32)
+            y = randrange(20+16, screen_h-20-h, 32)
 
             for room in rooms:
                 x_mez = sorted([(x, w), (room["x"], room["w"])], key=lambda x:x[0], reverse=True)

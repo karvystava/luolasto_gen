@@ -14,7 +14,7 @@ class DungeonGen():
         self.screen = pygame.display.set_mode((self.screen_w, self.screen_h))
         self.map_surface = pygame.Surface((980, 980))
         self.font = pygame.font.SysFont("Arial", 24)
-        self.grid = np.zeros((30, 30), dtype=int)
+        self.grid = np.zeros((28, 28), dtype=int)
 
         self.fps_clock = pygame.time.Clock()
         self.fps = 60
@@ -24,7 +24,7 @@ class DungeonGen():
         self.show_triangulation = False
         self.show_prim = True
         self.number_of_rooms = 20
-        self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':{}, 'tree':{}}
+        self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':{}, 'tree':{}, 'grid':[]}
 
         self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.new_map)
         self.create_button(30, 60, 100, 30, self.font, self.screen, 'dungeon', 'New', self.new_map)
@@ -36,9 +36,19 @@ class DungeonGen():
         for room in rooms:
             self.create_room(room["x"], room["y"], room["w"], room["h"], self.screen, color, buffer)
             self.objects['mids'].append((room["x"]+room["w"]/2, room["y"]+room["h"]/2))
-            print(room['x'])
-            print(room['x']+buffer)
-            print((room['x']+40)/32)
+            x = (room['x']-20)//32
+            y = (room['y']-20)//32
+            w = (room['w']-16)//32
+            h = (room['h']-16)//32
+            self.grid[y:y+h,x:x+w] = 1
+            print('x:',x)
+            print('y:', y)
+            print('w:', room['w'])
+            print('h:', room['h'])
+            print('w in grid:', (room['w']-16)//32)
+            print('h in grid:', (room['h']-16)//32)
+
+
 
     def create_button(self, x, y, width, height, font, screen, state, button_text='Button', click_function=None, one_press=False):
         self.objects['buttons'].append(Button(x, y, width, height, font, screen, state, button_text, click_function, one_press))
@@ -73,6 +83,13 @@ class DungeonGen():
             if key != 'buttons':
                 obs.clear()
 
+        grid_x = 52
+        grid_y = 52
+        for _ in range(29):
+            self.objects['grid'].append(Passage((grid_x, 20), (grid_x, 980), '#FFFFFF', self.screen, 2))
+            self.objects['grid'].append(Passage((20, grid_y), (980, grid_y), '#FFFFFF', self.screen, 2))
+            grid_x += 32
+            grid_y += 32
 
         self.make_rooms(gen_rooms(self.number_of_rooms, self.screen_h, self.screen_w), 16, '#CCE5FF')
         print(self.grid)
@@ -108,6 +125,9 @@ class DungeonGen():
             title = self.font.render(title_txt, True, (255,0,0))
             self.screen.blit(title, (30,10))
 
+            for line in self.objects['grid']:
+                line.render()
+
             for room in self.objects['rooms']:
                 room.render()
                 if self.show_mid:
@@ -121,7 +141,7 @@ class DungeonGen():
                 for passage in self.objects['tree']['psg']:
                     passage.render()
 
-            
+
 
         for button in self.objects['buttons']:
             if button.state == self.state:
