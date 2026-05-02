@@ -113,7 +113,7 @@ def prim(passages, number_of_rooms):
 
     return mst
 
-def neighbors(pos, grid):
+def neighbors(pos):
     neighbors = []
 
     x = pos[0]
@@ -124,9 +124,8 @@ def neighbors(pos, grid):
     for move in moves:
         a = move[0]
         b = move[1]
-        if a < 29 and a > -1 and b < 29 and b > -1:
+        if a < 28 and a > -1 and b < 28 and b > -1:
             neighbors.append((a, b))
-        
 
     return neighbors
 
@@ -136,7 +135,7 @@ def a_star(start, goal, grid):
     open_dict = {start['pos']: start}
     closed_list = []
 
-    start['h'] = md(start['pos'], goal['pos'])
+    start['h'] = md(start['pos'], goal['pos'], start['cost'])
     start['f'] = start['g'] + start['h']
 
     while len(open_list) > 0:
@@ -145,26 +144,27 @@ def a_star(start, goal, grid):
         current = open_list[0]
 
         if current['pos'] == goal['pos']:
-            return reconstruct_path(current)
+            return reconstruct_path(current, grid)
         
         open_list.pop(0)
         closed_list.append(current)
 
 
-        neighbor_positions = neighbors(current['pos'], grid)
+        neighbor_positions = neighbors(current['pos'])
 
         for n_pos in neighbor_positions:
+            n_cost = grid[n_pos[1],n_pos[0]]
+
             if n_pos in set([item['pos'] for item in closed_list]):
                 continue
 
-            maybe_g = current['g'] + md(current['pos'], n_pos)
+            maybe_g = current['g'] + md(current['pos'], n_pos, current['cost'])
 
             if n_pos not in open_dict:
-                h = md(n_pos, goal['pos'])
-                n = {'pos':n_pos, 'g': maybe_g, 'h': h, 'parent': current, 'f': maybe_g+h}
+                h = md(n_pos, goal['pos'], n_cost)
+                n = {'pos':n_pos, 'g': maybe_g, 'h': h, 'parent': current, 'f': maybe_g+h, 'cost':n_cost}
                 open_list.append(n)
                 open_dict[n_pos] = n
-
 
             elif maybe_g < open_dict[n_pos]['g']:
                 n = open_dict[n_pos]
@@ -173,12 +173,13 @@ def a_star(start, goal, grid):
                 n['f'] = n['g'] + n['h']
 
 
-def reconstruct_path(current):
+def reconstruct_path(current, grid):
     path = set()
     path_as_edges = set()
     pres = None
     while current is not None:
         pres = current['pos']
+        grid[pres[1],pres[0]] = 0
         path.add(current['pos'])
         current = current['parent']
         if current != None:

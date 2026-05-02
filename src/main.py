@@ -14,7 +14,7 @@ class DungeonGen():
         self.screen = pygame.display.set_mode((self.screen_w, self.screen_h))
         self.map_surface = pygame.Surface((980, 980))
         self.font = pygame.font.SysFont("Arial", 24)
-        self.grid = np.zeros((28, 28), dtype=int)
+        self.grid = np.ones((28, 28), dtype=int)
         self.nodes = []
 
         self.fps_clock = pygame.time.Clock()
@@ -23,9 +23,10 @@ class DungeonGen():
         self.state = 'startscreen'
         self.show_mid = False
         self.show_triangulation = False
-        self.show_prim = True
+        self.show_prim = False
         self.show_hallways = True
-        self.number_of_rooms = 20
+        self.show_grid = False
+        self.number_of_rooms = 30
         self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':{}, 'tree':{}, 'grid':[], 'hallways':{}}
 
         self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.new_map)
@@ -42,9 +43,8 @@ class DungeonGen():
             y = (room['y']-20)//32
             w = (room['w']-16)//32
             h = (room['h']-16)//32
-            self.grid[y:y+h,x:x+w] = 1
-            self.grid[y+h//2, x+w//2] = 2
-            self.nodes.append({'pos': (x+w//2, y+h//2), 'g': float('inf'), 'h': 0.0, 'parent': None})
+            self.grid[y:y+h,x:x+w] = 5
+            self.nodes.append({'pos': (x+w//2, y+h//2), 'g': 1000, 'h': 0.0, 'parent': None, 'cost':5})
 
 
     def create_button(self, x, y, width, height, font, screen, state, button_text='Button', click_function=None, one_press=False):
@@ -77,11 +77,10 @@ class DungeonGen():
             full_path.update(a_star(self.nodes[0], self.nodes[1], self.grid))
             self.nodes.pop(0)
 
-        print(full_path)
         self.objects['hallways']['psg'] = []
         self.objects['hallways']['edges'] = set()
         for edge in full_path:
-            self.objects['hallways']['psg'].append(Passage(edge[0], edge[1], '#CCE5FF', self.screen, 20))
+            self.objects['hallways']['psg'].append(Passage(edge[0], edge[1], '#CDDEFF', self.screen, 20))
             self.objects['hallways']['edges'].add(edge)
 
         return full_path
@@ -107,8 +106,7 @@ class DungeonGen():
         print(self.grid)
         self.create_passages(triangulation(self.objects['mids'], self.screen_h, self.screen_w))
         self.create_mst(prim(self.objects['passages']['psg'], len(self.objects['rooms'])))
-        path = self.create_a_star()
-        print()
+        self.create_a_star()
         print()
         print(self.grid)
 
@@ -141,8 +139,9 @@ class DungeonGen():
             title = self.font.render(title_txt, True, (255,0,0))
             self.screen.blit(title, (30,10))
 
-            for line in self.objects['grid']:
-                line.render()
+            if self.show_grid:
+                for line in self.objects['grid']:
+                    line.render()
 
             for room in self.objects['rooms']:
                 room.render()

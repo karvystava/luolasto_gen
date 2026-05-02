@@ -35,8 +35,8 @@ def center(q, p, r):
     circumcenter = vertex(a, b, c, e, f, g)
     return circumcenter
 
-def manhattan_distance(a, b):
+def manhattan_distance(a, b, cost):
     xs = abs(a[0]-b[0])
     ys = abs(a[1]-b[1])
-    md = xs + ys
+    md = (xs + ys) + (1+cost)*100000
     return md
