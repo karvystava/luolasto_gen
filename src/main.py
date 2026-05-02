@@ -2,7 +2,7 @@ import sys
 import pygame
 import math
 import numpy as np
-from gens import gen_rooms, triangulation, prim
+from gens import gen_rooms, triangulation, prim, a_star
 
 class DungeonGen():
     def __init__(self):
@@ -15,6 +15,7 @@ class DungeonGen():
         self.map_surface = pygame.Surface((980, 980))
         self.font = pygame.font.SysFont("Arial", 24)
         self.grid = np.zeros((28, 28), dtype=int)
+        self.nodes = []
 
         self.fps_clock = pygame.time.Clock()
         self.fps = 60
@@ -23,8 +24,9 @@ class DungeonGen():
         self.show_mid = False
         self.show_triangulation = False
         self.show_prim = True
+        self.show_hallways = True
         self.number_of_rooms = 20
-        self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':{}, 'tree':{}, 'grid':[]}
+        self.objects = {'buttons':[],'rooms':[], 'mids':[], 'passages':{}, 'tree':{}, 'grid':[], 'hallways':{}}
 
         self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.new_map)
         self.create_button(30, 60, 100, 30, self.font, self.screen, 'dungeon', 'New', self.new_map)
@@ -41,13 +43,8 @@ class DungeonGen():
             w = (room['w']-16)//32
             h = (room['h']-16)//32
             self.grid[y:y+h,x:x+w] = 1
-            print('x:',x)
-            print('y:', y)
-            print('w:', room['w'])
-            print('h:', room['h'])
-            print('w in grid:', (room['w']-16)//32)
-            print('h in grid:', (room['h']-16)//32)
-
+            self.grid[y+h//2, x+w//2] = 2
+            self.nodes.append({'pos': (x+w//2, y+h//2), 'g': float('inf'), 'h': 0.0, 'parent': None})
 
 
     def create_button(self, x, y, width, height, font, screen, state, button_text='Button', click_function=None, one_press=False):
@@ -74,10 +71,25 @@ class DungeonGen():
         for i in range(len(extra)//5):
             self.objects['tree']['psg'].append(Passage(extra[i][0], extra[i][1], '#FF007F', self.screen, 2))
 
+    def create_a_star(self):
+        full_path = set()
+        for _ in range(len(self.nodes)-1):
+            full_path.update(a_star(self.nodes[0], self.nodes[1], self.grid))
+            self.nodes.pop(0)
+
+        print(full_path)
+        self.objects['hallways']['psg'] = []
+        self.objects['hallways']['edges'] = set()
+        for edge in full_path:
+            self.objects['hallways']['psg'].append(Passage(edge[0], edge[1], '#CCE5FF', self.screen, 20))
+            self.objects['hallways']['edges'].add(edge)
+
+        return full_path
 
 
     def new_map(self):
         self.state = 'dungeon'
+        self.nodes = []
 
         for key, obs in self.objects.items():
             if key != 'buttons':
@@ -86,8 +98,8 @@ class DungeonGen():
         grid_x = 52
         grid_y = 52
         for _ in range(29):
-            self.objects['grid'].append(Passage((grid_x, 20), (grid_x, 980), '#FFFFFF', self.screen, 2))
-            self.objects['grid'].append(Passage((20, grid_y), (980, grid_y), '#FFFFFF', self.screen, 2))
+            self.objects['grid'].append(Passage((grid_x, 20), (grid_x, 980), '#FFFFFF', self.screen, 1))
+            self.objects['grid'].append(Passage((20, grid_y), (980, grid_y), '#FFFFFF', self.screen, 1))
             grid_x += 32
             grid_y += 32
 
@@ -95,6 +107,10 @@ class DungeonGen():
         print(self.grid)
         self.create_passages(triangulation(self.objects['mids'], self.screen_h, self.screen_w))
         self.create_mst(prim(self.objects['passages']['psg'], len(self.objects['rooms'])))
+        path = self.create_a_star()
+        print()
+        print()
+        print(self.grid)
 
 
     def loop(self):
@@ -133,6 +149,10 @@ class DungeonGen():
                 if self.show_mid:
                     room.render_mid()
 
+            if self.show_hallways:
+                for hallway in self.objects['hallways']['psg']:
+                    hallway.render()
+
             if self.show_triangulation:
                 for passage in self.objects['passages']['psg']:
                     passage.render()
@@ -140,7 +160,6 @@ class DungeonGen():
             if self.show_prim:
                 for passage in self.objects['tree']['psg']:
                     passage.render()
-
 
 
         for button in self.objects['buttons']:
