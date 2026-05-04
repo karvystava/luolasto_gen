@@ -14,7 +14,7 @@ class DungeonGen():
         self.screen = pygame.display.set_mode((self.screen_w, self.screen_h))
         self.map_surface = pygame.Surface((980, 980))
         self.font = pygame.font.SysFont("Arial", 24)
-        self.grid = np.ones((28, 28), dtype=int)
+        self.grid = np.full(784, 2, dtype=int).reshape(28, 28)
         self.nodes = []
 
         self.fps_clock = pygame.time.Clock()
@@ -43,7 +43,7 @@ class DungeonGen():
             y = (room['y']-20)//32
             w = (room['w']-16)//32
             h = (room['h']-16)//32
-            self.grid[y:y+h,x:x+w] = 5
+            self.grid[y:y+h,x:x+w] = 9
             self.nodes.append({'pos': (x+w//2, y+h//2), 'g': 1000, 'h': 0.0, 'parent': None, 'cost':5})
 
 
@@ -89,6 +89,7 @@ class DungeonGen():
     def new_map(self):
         self.state = 'dungeon'
         self.nodes = []
+        self.grid = np.full(784, 2, dtype=int).reshape(28, 28)
 
         for key, obs in self.objects.items():
             if key != 'buttons':

@@ -94,10 +94,6 @@ def prim(passages, number_of_rooms):
         mst.add((vertex, new_vertex))
         vertices.add(vertex)
         vertices.add(new_vertex)
-
-        for edge, vertex in edges.items():
-            a = vertex
-            b = edge.a if edge.a != a else edge.b
     
         for edge in [edge for edge in passages if edge.a == new_vertex or edge.b == new_vertex]:
             a = new_vertex
@@ -179,7 +175,8 @@ def reconstruct_path(current, grid):
     pres = None
     while current is not None:
         pres = current['pos']
-        grid[pres[1],pres[0]] = 0
+        if grid[pres[1],pres[0]] != 9:
+            grid[pres[1],pres[0]] = 0
         path.add(current['pos'])
         current = current['parent']
         if current != None:

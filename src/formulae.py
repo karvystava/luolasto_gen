@@ -16,7 +16,7 @@ def perpendicular_bisector_line(q, p, a, b, c):
 def vertex(a1, b1, c1, a2, b2, c2):
     det = a1*b2 - a2*b1
     if det == 0:
-        return [(10.0)**19, (10.0)**19]
+        return ((10.0)**19, (10.0)**19)
     x = (b2*c1 - b1*c2)//det
     y = (a1*c2 - a2*c1)//det
     return (x, y)
@@ -38,5 +38,5 @@ def center(q, p, r):
 def manhattan_distance(a, b, cost):
     xs = abs(a[0]-b[0])
     ys = abs(a[1]-b[1])
-    md = (xs + ys) + (1+cost)*100000
+    md = (xs + ys) + cost*100000
     return md
