@@ -1,32 +1,6 @@
-from random import randint, randrange
+
 import math
 from formulae import center, manhattan_distance as md
-
-
-def gen_rooms(number_of_rooms, screen_w, screen_h):
-    rooms = []
-    for _ in range(number_of_rooms-1):
-        while True:
-            again = False
-            h = randrange(48,240,32)
-            w = randrange(48,240,32)
-            x = randrange(20+16, screen_w-20-w, 32)
-            y = randrange(20+16, screen_h-20-h, 32)
-
-            for room in rooms:
-                x_mez = sorted([(x, w), (room["x"], room["w"])], key=lambda x:x[0], reverse=True)
-                y_mez = sorted([(y, h), (room["y"], room["h"])], key=lambda x:x[0], reverse=True)
-                if x_mez[0][0] - x_mez[1][0] - x_mez[1][1] < 0 and y_mez[0][0] - y_mez[1][0] - y_mez[1][1] < 0:
-                    again = True
-                    break
-
-            if again:
-                continue
-            room_dict = {"h":h, "w":w, "x":x, "y":y}
-            rooms.append(room_dict)
-            break
-
-    return rooms
 
 
 def triangulation(room_points, screen_h, screen_w):
