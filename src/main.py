@@ -1,7 +1,7 @@
 import sys
 import pygame
 from map import Map
-from items import Button
+from items import Button, InputBox
 
 class DungeonGen():
     def __init__(self):
@@ -30,11 +30,12 @@ class DungeonGen():
         self.show_prim = False
         self.show_hallways = True
         self.show_grid = False
-        self.number_of_rooms = 30
-        self.objects = {'buttons': []}
+        self.number_of_rooms = 0
+        self.objects = {'buttons': [], 'inputbox':[]}
 
-        self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.new_map)
+        #self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.new_map)
         self.create_button(30, 60, 100, 30, self.font, self.screen, 'dungeon', 'New', self.new_map)
+        self.create_input_box(300, 500, 400, 100, self.font, self.screen, 'startscreen', self.update_room_number)
 
         self.loop()
 
@@ -42,9 +43,15 @@ class DungeonGen():
         self.state = 'dungeon'
         self.map = Map(self.screen, self.screen_w, self.screen_h, 16, self.number_of_rooms, self.colors)
 
-    def create_button(self, x, y, width, height, font, screen, state, button_text='Button', click_function=None, one_press=False):
-        self.objects['buttons'].append(Button(x, y, width, height, font, screen, state, button_text, click_function, one_press))
+    def update_room_number(self, number):
+        self.number_of_rooms = number
+        self.new_map()
 
+    def create_button(self, x, y, w, h, font, screen, state, button_text='Button', click_function=None, one_press=False):
+        self.objects['buttons'].append(Button(x, y, w, h, font, screen, state, button_text, click_function, one_press))
+
+    def create_input_box(self, x, y, w, h, font, screen, state, enter_function):
+        self.objects['inputbox'].append(InputBox(x, y, w, h, font, screen, state, enter_function))
 
     def loop(self):
 
@@ -55,6 +62,9 @@ class DungeonGen():
             for event in events:
                 if event.type == pygame.QUIT:
                     sys.exit()
+                for box in self.objects['inputbox']:
+                    if box.state == self.state:
+                        box.process(event)
 
             for button in self.objects['buttons']:
                 if button.state == self.state:
@@ -103,6 +113,10 @@ class DungeonGen():
         for button in self.objects['buttons']:
             if button.state == self.state:
                 button.render()
+
+        for box in self.objects['inputbox']:
+            if box.state == self.state:
+                box.render()
 
         pygame.display.flip()
 

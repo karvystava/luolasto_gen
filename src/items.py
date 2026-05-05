@@ -75,3 +75,62 @@ class Button():
         self.button_rect.height/2 - self.button_surf.get_rect().height/2
         ])
         self.screen.blit(self.button_surface, self.button_rect)
+
+
+class InputBox():
+    def __init__(self, x, y, w, h, font, screen, state, enter_function):
+        self.font = font
+        self.input_text = ''
+        self.input_active = False
+        self.enter_function = enter_function
+        self.screen = screen
+        self.state = state
+        self.error = False
+        self.colors = {
+            'passive': '#ffffff',
+            'hover': '#666666',
+            'active': '#333333'
+        }
+
+        self.input_box = pygame.Rect(x, y, w, h)
+
+    def process(self, event=None):
+        mouse_pos = pygame.mouse.get_pos()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.input_box.collidepoint(event.pos):
+                self.input_active = True
+            else:
+                self.input_active = False
+
+        elif event.type == pygame.KEYDOWN and self.input_active:
+    
+            if event.key == pygame.K_RETURN and not self.error:
+                self.enter_function(int(self.input_text))
+                self.input_text = ''
+                self.input_active = False
+
+            elif event.key == pygame.K_BACKSPACE:
+                self.input_text = self.input_text[:-1]
+
+            try:
+                if int(self.input_text + event.unicode) >= 0 and int(self.input_text + event.unicode) < 51:
+                    self.error = False
+                    self.input_text += event.unicode
+
+            except:
+                self.error = True
+
+    def render(self):
+        color = self.colors['active'] if self.input_active else self.colors['passive']
+        pygame.draw.rect(self.screen, color, self.input_box)
+        pygame.draw.rect(self.screen, '#FFFFFF', self.input_box, 2)
+
+        text_surf = self.font.render(self.input_text, True, '#FFFFFF')
+        self.screen.blit(text_surf, (self.input_box.x + 10, self.input_box.y + 10))
+
+        instruction = self.font.render("Type number of rooms to generate and press Enter", True, '#FFFFFF')
+        error = self.font.render("Please type a number between 0-50", True, '#FFFFFF')
+        message = error if self.error else instruction
+        self.screen.blit(message, (50,50))
+
