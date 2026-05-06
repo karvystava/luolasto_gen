@@ -9,7 +9,6 @@ class Passage():
         self.color = color
         self.screen = screen
         self.w = width
-        self.color = color
         self.d = math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2)
 
     def render(self):

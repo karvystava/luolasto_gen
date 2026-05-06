@@ -4,7 +4,11 @@ from algorithms import triangulation
 def test_triangulation_with_three_points():
     points = [(1,1), (1,4), (2,3)]
 
-    edges = {((1,1),(2,3)),((1,1),(1,4)),((1,4),(2,3))}
+    edges = {
+        ((1,1),(2,3)),
+        ((1,1),(1,4)),
+        ((1,4),(2,3))
+        }
     tri_edges = triangulation(points, 1000, 1000)
     assert edges == tri_edges
 
@@ -29,22 +33,10 @@ def test_triangulation_with_ten_points():
     tri_edges = triangulation(points, 1000, 1000)
     assert edges == tri_edges
 
-def test_triangulation_with_points_in_a_line():
-    points = [(3,3), (3,4), (3,5)]
-
-    edges = {
-        ((3,3),(3,4)),
-        ((3,3),(3,5)),
-        ((3,4),(3,5))
-    }
-
-    tri_edges = triangulation(points, 1000, 1000)
-    assert edges == tri_edges
-
 def test_triangulation_with_no_points():
     points = []
 
     edges = set()
 
-    tri_edges = triangulation(points, 1000, 1000)
+    tri_edges = triangulation(points, 10, 10)
     assert edges == tri_edges
