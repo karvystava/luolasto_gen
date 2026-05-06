@@ -10,6 +10,7 @@ def test_prim_with_no_rooms():
 
     assert mst == prim(passages, number)
 
+
 def test_prim_with_one_room():
     passages = []
     number = 1
@@ -17,6 +18,7 @@ def test_prim_with_one_room():
     mst = set()
 
     assert mst == prim(passages, number)
+
 
 def test_passage_class():
     edge = ((1,1),(2,3))
@@ -58,6 +60,7 @@ def test_prim_with_three_rooms():
 
     assert mst == prim(passages, number)
 
+
 def test_prim_with_ten_rooms():
     passages = []
     number = 10
@@ -81,6 +84,7 @@ def test_prim_with_ten_rooms():
          }         
 
     assert mst == prim(passages, number)
+
 
 def test_through_all_rooms():
     passages = []

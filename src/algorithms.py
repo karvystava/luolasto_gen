@@ -165,4 +165,4 @@ def reconstruct_path(current, grid):
             edge = (pres[0]*32+67.75, pres[1]*32+67.75), (current['pos'][0]*32+67.75, current['pos'][1]*32+67.75)
             path_as_edges.add(edge)
 
-    return tuple(path_as_edges)
+    return tuple(path_as_edges), tuple(path)

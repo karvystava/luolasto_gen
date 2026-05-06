@@ -104,10 +104,14 @@ class Map():
 
     def create_a_star(self, color):
 
+        full_grid_path = set()
+
         full_path = set()
         for _ in range(len(self.nodes)-1):
-            full_path.update(a_star(self.nodes[0], self.nodes[1], self.grid))
+            full_path.update(a_star(self.nodes[0], self.nodes[1], self.grid)[0])
+            full_grid_path.update(a_star(self.nodes[0], self.nodes[1], self.grid)[1])
             self.nodes.pop(0)
+
 
         self.hallways['psg'] = []
         self.hallways['edges'] = set()
