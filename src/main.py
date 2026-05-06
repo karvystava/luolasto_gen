@@ -14,10 +14,11 @@ class DungeonGen():
         self.screen_h = 1000
         self.screen = pygame.display.set_mode((self.screen_w, self.screen_h))
         self.map_surface = pygame.Surface((980, 980))
-        self.font = pygame.font.SysFont("Arial", 24)
+        self.font = pygame.font.SysFont("katextypewriter", 23)
         self.colors = {
-            'rooms': '#CCE5FF', 
-            'hallways': '#CCE5FF', 
+            'bg': '#000000',
+            'rooms': '#FFFFFF', 
+            'hallways': '#FFFFFF', 
             'mst': '#FF007F', 
             'tri':'#80FF00'}
 
@@ -34,8 +35,9 @@ class DungeonGen():
         self.objects = {'buttons': [], 'inputbox':[]}
 
         #self.create_button(300, 400, 400, 100, self.font, self.screen, 'startscreen', 'Generate a Dungeon', self.new_map)
-        self.create_button(30, 60, 100, 30, self.font, self.screen, 'dungeon', 'New', self.new_map)
-        self.create_input_box(300, 500, 400, 100, self.font, self.screen, 'startscreen', self.update_room_number)
+        self.create_button(30, 20, 100, 30, self.font, self.screen, 'dungeon', 'New', self.new_map)
+        self.create_input_box(30, 60, 100, 40, self.font, self.screen, 'dungeon', self.new_map, self.update_room_number)
+        self.create_input_box(420, 450, 130, 50, self.font, self.screen, 'startscreen', self.new_map, self.update_room_number)
 
         self.loop()
 
@@ -45,13 +47,12 @@ class DungeonGen():
 
     def update_room_number(self, number):
         self.number_of_rooms = number
-        self.new_map()
 
     def create_button(self, x, y, w, h, font, screen, state, button_text='Button', click_function=None, one_press=False):
         self.objects['buttons'].append(Button(x, y, w, h, font, screen, state, button_text, click_function, one_press))
 
-    def create_input_box(self, x, y, w, h, font, screen, state, enter_function):
-        self.objects['inputbox'].append(InputBox(x, y, w, h, font, screen, state, enter_function))
+    def create_input_box(self, x, y, w, h, font, screen, state, enter_function, type_function):
+        self.objects['inputbox'].append(InputBox(x, y, w, h, font, screen, state, enter_function, type_function))
 
     def loop(self):
 
@@ -76,17 +77,9 @@ class DungeonGen():
 
     def display_screen(self):
 
-        if self.state == 'startscreen':
-            self.screen.fill((0,0,70))
-            title_txt = "Dungeon Generator (startscreen)"
-            title = self.font.render(title_txt, True, (255,0,0))
-            self.screen.blit(title, (30,10))
+        self.screen.fill(self.colors['bg'])
 
-        else:
-            self.screen.fill((0,0,70))
-            title_txt = "Dungeon Generator (map)"
-            title = self.font.render(title_txt, True, (255,0,0))
-            self.screen.blit(title, (30,10))
+        if self.state == 'dungeon':
 
             if self.show_grid:
                 for line in self.map.grid_lines:

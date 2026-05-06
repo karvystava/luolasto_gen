@@ -16,11 +16,11 @@ class Passage():
 
 
 class Room():
-    def __init__(self, x, y, width, height, screen, color, buffer):
+    def __init__(self, x, y, width, height, screen, colors, buffer):
         self.screen = screen
         self.room = pygame.Rect((x+buffer, y+buffer, width-buffer, height-buffer))
         self.buffer = pygame.Rect((x, y, width+buffer, height+buffer))
-        self.color = color
+        self.colors = colors
         self.x = x
         self.y = y
         self.w = width
@@ -28,11 +28,11 @@ class Room():
         self.mid = (x+width/2, y+height/2)
 
     def render(self):
-        pygame.draw.rect(self.screen, (0,0,70), self.buffer)
-        pygame.draw.rect(self.screen, self.color, self.room)
+        pygame.draw.rect(self.screen, self.colors['bg'], self.buffer)
+        pygame.draw.rect(self.screen, self.colors['rooms'], self.room)
 
     def render_mid(self):
-        pygame.draw.circle(self.screen, '#FF66B2', self.mid, 3)
+        pygame.draw.circle(self.screen, self.colors['mst'], self.mid, 3)
 
 
 class Button():
@@ -78,16 +78,17 @@ class Button():
 
 
 class InputBox():
-    def __init__(self, x, y, w, h, font, screen, state, enter_function):
+    def __init__(self, x, y, w, h, font, screen, state, enter_function, type_function):
         self.font = font
         self.input_text = ''
         self.input_active = False
         self.enter_function = enter_function
+        self.type_function = type_function
         self.screen = screen
         self.state = state
         self.error = False
         self.colors = {
-            'passive': '#ffffff',
+            'passive': '#000000',
             'hover': '#666666',
             'active': '#333333'
         }
@@ -95,7 +96,6 @@ class InputBox():
         self.input_box = pygame.Rect(x, y, w, h)
 
     def process(self, event=None):
-        mouse_pos = pygame.mouse.get_pos()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.input_box.collidepoint(event.pos):
@@ -106,20 +106,24 @@ class InputBox():
         elif event.type == pygame.KEYDOWN and self.input_active:
     
             if event.key == pygame.K_RETURN and not self.error:
-                self.enter_function(int(self.input_text))
+                self.enter_function()
                 self.input_text = ''
                 self.input_active = False
 
             elif event.key == pygame.K_BACKSPACE:
                 self.input_text = self.input_text[:-1]
+                if len(self.input_text) != 0:
+                    self.type_function(int(self.input_text))
 
-            try:
-                if int(self.input_text + event.unicode) >= 0 and int(self.input_text + event.unicode) < 51:
-                    self.error = False
-                    self.input_text += event.unicode
+            else:
+                try:
+                    if (int(self.input_text + event.unicode) >= 0 and int(self.input_text + event.unicode) < 51):
+                        self.error = False
+                        self.input_text += event.unicode
+                        self.type_function(int(self.input_text))
 
-            except:
-                self.error = True
+                except:
+                        self.error = True
 
     def render(self):
         color = self.colors['active'] if self.input_active else self.colors['passive']
@@ -130,7 +134,11 @@ class InputBox():
         self.screen.blit(text_surf, (self.input_box.x + 10, self.input_box.y + 10))
 
         instruction = self.font.render("Type number of rooms to generate and press Enter", True, '#FFFFFF')
-        error = self.font.render("Please type a number between 0-50", True, '#FFFFFF')
-        message = error if self.error else instruction
-        self.screen.blit(message, (50,50))
+        error = self.font.render("Pick a number between 0-50", True, '#FF0000')
+        
+        if self.error:
+            self.screen.blit(error, (300,15))
+        if self.state == 'startscreen':
+            self.screen.blit(instruction, (200,400))
+
 

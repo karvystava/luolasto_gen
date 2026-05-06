@@ -48,6 +48,9 @@ def prim(passages, number_of_rooms):
     mst = set()
     vertices = set()
 
+    if len(passages) == 0:
+        return mst
+
     first_vertex = passages[0].a
 
     edges = {edge : first_vertex for edge in [edge for edge in passages if edge.a == first_vertex or edge.b == first_vertex]}

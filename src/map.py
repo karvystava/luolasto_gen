@@ -23,7 +23,7 @@ class Map():
         self.grid_lines = []
 
         self.create_grid_lines()
-        self.create_rooms(colors['rooms'])
+        self.create_rooms()
         print(self.grid)
         self.create_passages(triangulation(self.mids, self.screen_h, self.screen_w), colors['tri'])
         self.create_mst(prim(self.passages['psg'], len(self.rooms)), colors['mst'])
@@ -43,10 +43,10 @@ class Map():
             grid_y += 32
 
 
-    def create_rooms(self, color):
+    def create_rooms(self):
 
         rooms = []
-        for _ in range(self.room_number-1):
+        for _ in range(self.room_number):
             while True:
                 again = False
                 h = randrange(48,240,32)
@@ -68,7 +68,7 @@ class Map():
                 break
 
         for room in rooms:
-            self.rooms.append(Room(room['x'], room['y'], room['w'], room['h'], self.screen, color, self.buffer))
+            self.rooms.append(Room(room['x'], room['y'], room['w'], room['h'], self.screen, self.colors, self.buffer))
             self.mids.append((room["x"]+room["w"]/2, room["y"]+room["h"]/2))
 
             x = (room['x']-20)//32
