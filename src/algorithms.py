@@ -147,15 +147,20 @@ def a_star(start, goal, grid):
 
 
 def reconstruct_path(current, grid):
+
     path = set()
     path_as_edges = set()
     pres = None
+
     while current is not None:
         pres = current['pos']
+
         if grid[pres[1],pres[0]] != 9:
             grid[pres[1],pres[0]] = 0
+
         path.add(current['pos'])
         current = current['parent']
+
         if current != None:
             edge = (pres[0]*32+67.75, pres[1]*32+67.75), (current['pos'][0]*32+67.75, current['pos'][1]*32+67.75)
             path_as_edges.add(edge)

@@ -48,6 +48,7 @@ class Map():
         rooms = []
         for _ in range(self.room_number):
             while True:
+
                 again = False
                 h = randrange(48,240,32)
                 w = randrange(48,240,32)
@@ -55,6 +56,7 @@ class Map():
                 y = randrange(20+16, self.screen_h-20-h, 32)
 
                 for room in rooms:
+
                     x_mez = sorted([(x, w), (room["x"], room["w"])], key=lambda x:x[0], reverse=True)
                     y_mez = sorted([(y, h), (room["y"], room["h"])], key=lambda x:x[0], reverse=True)
                     if x_mez[0][0] - x_mez[1][0] - x_mez[1][1] < 0 and y_mez[0][0] - y_mez[1][0] - y_mez[1][1] < 0:
