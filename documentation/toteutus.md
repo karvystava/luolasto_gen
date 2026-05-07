@@ -1,31 +1,34 @@
 Toteutusdokumentti
 
-Ohjelman ydintoteutus löytyy main.py-tiedostosta, jossa on toteutettu DungeonGen
- -luokkaolio. DungeonGen on pygamea käyttävä pelipohja, jossa on etusivu ja karttasivu,
-jolle pääsee etusivulta. Karttasivulla voi "new":ta painamalla generoida satunnaisia
-huonekarttoja. 
+Ohjelma käynnistyy main.py-tiedostosta, jossa on toteutettu DungeonGen
+ -luokkaolio. DungeonGen luo pygame-pelipohjan, hoitaa peliloopin ja piirtää näytön.
+ 
+Ohjelman tietorakenteiden manageroiminen tapahtuu map.py-tiedostossa, jossa Map-luokkaolio luo uuden sokkelokartan ja sen oliot, kuten huoneet, reitit, käytävät ja apugridin. Huoneiden generointi tapahtuu täällä.
+ 
+Näiden olioiden luomista varten Map-luokan funktiot kutsuvat algorithms.py-tiedoston algoritmeja, jotka hoitavat triangulaation, mst:n ja A*-reitin.
 
-Perus pygame-funktioiden (loop ja display_screen) lisäksi sieltä
-löytyvät funktiot make_room, joka generoi huoneiden x- ja y-koordinaatit sekä
-nelikulmaisten huoneiden leveydet ja pituudet. Huoneiden väliset käytävät, "passages",
-perustuvat Boywer-Watson algoritmiin, jonka toteutus on funktiossa triangulation.
+Triangulaation ja A*:den apuna tiedostosta formulae.py löytyy matemaattisia funktioita, esimerkiksi A*:den heuristinen funktio Manhattan Distance.
 
-Tämän lisäksi mainista löytyy omat luokat Room-, Passage- ja Button-olioille.
+Items.py pitää sisällään luokat Button, InputBox, Room ja Passage eli näiden luokka-olioiden alustamisen, prosessoinnnin peliloopin sisällä sekä renderöinnin.
 
-Mainin lisäksi srcssä on circumcenter-koodi, jossa on matemaattisia funktioita, joita
-tarvitaan triangulation-funktioon.
-
-Triangulation eli Boywer-Watsonin algoritmi on ohjelman ydinalgoritmi, ja sen 
-aikavaativuuden pitäisi ainakin pseudokoodin tietojen perusteella olla O(n²).
-
-Työ on vielä kesken, ja toistaiseksi itse käytävät ovat aikalailla idean tasolla.
-Yhteyksiä tulee vähentää ja ne tulee visualisoida yhteneväisemmiksi huoneiden kanssa.
-
+Aloitussivulla on ohjeteksti sekä InputBox-olio, johon voi syöttää toivotun kartan huonemäärän välillä 0-50 ja Enteriä painamalla siirrytään karttasivulle. Karttasivulla on kartta, New-nappula josta voi generoida uuden kartan samalla huonemäärällä sekä toinen huonemäärän syöttöboksi, joka luo uuden kartan Enterillä tai täyttämällä ensin InputBoxin ja sitten painamalla New.
 
 Laajoja kielimalleja ei ole käytetty.
 
+
 Lähteet:
 https://vazgriz.com/119/procedurally-generated-dungeons/
-https://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm (hox. pseudokoodi, jota
-seurasin Boywer-Watsoniin)
+
+https://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm 
+(Pseudokoodi, jota seurasin Boywer-Watsoniin)
+
 https://en.wikipedia.org/wiki/Delaunay_triangulation
+
+https://www.freecodecamp.org/news/prims-algorithm-explained-with-pseudocode/ 
+(Pseudokoodi Primiin)
+
+https://www.datacamp.com/tutorial/a-star-algorithm?dc_referrer=https%3A%2F%2Fduckduckgo.com%2F 
+(Pseudokoodi A*:teen. Sivulta löytyy myös Pythonilla algoritmin muodostusesimerkki, mutta seurasin ylempänä olevaa pseudokoodia.)
+
+https://en.wikipedia.org/wiki/A*_search_algorithm 
+(Toinen A*:den toteutukseen käyttämäni pseudokoodi)
