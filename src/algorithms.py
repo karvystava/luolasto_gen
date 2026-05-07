@@ -4,6 +4,11 @@ from formulae import center, manhattan_distance as md
 
 
 def triangulation(room_points, screen_h, screen_w):
+
+    # supertriangle is the first huge triangle that all points are in and 
+    # which will be divided into smaller triangles which will be divided into smaller triangles etc
+    # until there are no free points left
+
     supertri_points = ((0,0), (0, screen_h*2), (screen_w*2,0))
     supertri_edges = (((0,0), (0,screen_h*2)), ((0,0), (screen_w*2,0)), ((screen_w*2,0), (0,screen_h*2)))
     supertri_circumcenter = center((0,0), (0, screen_h*2), (screen_w*2,0))
@@ -37,6 +42,7 @@ def triangulation(room_points, screen_h, screen_w):
             new_circ = center(edge[0], edge[1], point)
             triangulation[new_edges] = {'circum':(new_circ, math.dist(new_circ, point)), 'points':set((edge[0], edge[1], point))}
 
+    # exclude edges connected to the supertriangle
     for tri_edges, tri in triangulation.items():
         if len(tri['points'] - set(supertri_points)) == 3:
             edges.update(tri_edges)
@@ -45,24 +51,27 @@ def triangulation(room_points, screen_h, screen_w):
 
 
 def prim(passages, number_of_rooms):
+
+    # find minimum spanning tree: start with random start node, then find cheapest (shortest in this case) edge to next node,
+    # then find cheapest next edge connected to either of the nodes now reached etc
+    # ! with never connecting to a node that has already been visited
+
     mst = set()
-    vertices = set()
+    vertices = set() # aka nodes
 
     if len(passages) == 0:
         return mst
 
     first_vertex = passages[0].a
 
+    # edges = {((x1,y1),(x2,xy)) aka the edge : the node it "starts" from}
     edges = {edge : first_vertex for edge in [edge for edge in passages if edge.a == first_vertex or edge.b == first_vertex]}
     vertex = first_vertex
-    i = 0
 
     while len(mst) < number_of_rooms-1:
         min_edge, vertex = min(edges.items(), key=lambda item: item[0].d)
 
-        a = vertex
         new_vertex = min_edge.a if min_edge.a != vertex else min_edge.b
-
 
         if new_vertex in vertices:
             edges.pop(min_edge)
@@ -73,20 +82,22 @@ def prim(passages, number_of_rooms):
         vertices.add(new_vertex)
     
         for edge in [edge for edge in passages if edge.a == new_vertex or edge.b == new_vertex]:
-            a = new_vertex
             b = edge.a if edge.a != new_vertex else edge.b
             if b not in vertices:
                 edges[edge] = new_vertex
 
         edges.pop(min_edge)
 
-
         vertex = new_vertex
-        i += 1
 
     return mst
 
+
 def neighbors(pos):
+
+    # help function for A*
+    # get valid neighbor positions around a point in the grid
+
     neighbors = []
 
     x = pos[0]
@@ -97,18 +108,24 @@ def neighbors(pos):
     for move in moves:
         a = move[0]
         b = move[1]
-        if a < 28 and a > -1 and b < 28 and b > -1:
+        if a < 28 and a > -1 and b < 28 and b > -1: # grid limits (0-27)
             neighbors.append((a, b))
 
     return neighbors
 
+
 def a_star(start, goal, grid):
-    
+
+    # find best (cheapest) path between nodes (rooms) in the grid (map)
+    # get all paths through the nodes (map) and their cost
+    # return cheapest path
+
+
     open_list = [start]
     open_dict = {start['pos']: start}
     closed_list = []
 
-    start['h'] = md(start['pos'], goal['pos'], start['cost'])
+    start['h'] = md(start['pos'], goal['pos'], start['cost']) # h aka the heuristic cost function aka md from formulae.py
     start['f'] = start['g'] + start['h']
 
     while len(open_list) > 0:
@@ -148,20 +165,24 @@ def a_star(start, goal, grid):
 
 def reconstruct_path(current, grid):
 
-    path = set()
-    path_as_edges = set()
+    # reconstructing best path given by A* into sets of nodes and edges
+    # current = best path according to A*
+
+    path = set() # path in grid terms (to make testing and debugging easier)
+    path_as_edges = set() # path as pixel edges for map
     pres = None
 
     while current is not None:
         pres = current['pos']
 
         if grid[pres[1],pres[0]] != 9:
-            grid[pres[1],pres[0]] = 0
+            grid[pres[1],pres[0]] = 0 # add new hallway tile to grid unless in a room
 
         path.add(current['pos'])
         current = current['parent']
 
         if current != None:
+            # approximated transposing from grid to pixel
             edge = (pres[0]*32+67.75, pres[1]*32+67.75), (current['pos'][0]*32+67.75, current['pos'][1]*32+67.75)
             path_as_edges.add(edge)
 

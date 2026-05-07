@@ -1,6 +1,7 @@
 import pygame
 import math
 
+# straight line
 class Passage():
     def __init__(self, a, b, color, screen, width):
 
@@ -14,7 +15,7 @@ class Passage():
     def render(self):
         pygame.draw.line(self.screen, self.color, self.a, self.b, self.w)
 
-
+# room box
 class Room():
     def __init__(self, x, y, width, height, screen, colors, buffer):
 
@@ -113,17 +114,18 @@ class InputBox():
 
         elif event.type == pygame.KEYDOWN and self.input_active:
             if event.key == pygame.K_RETURN and not self.error:
-                self.enter_function()
+                self.enter_function() # enter function is self.new_map()
                 self.input_text = ''
                 self.input_active = False
 
             elif event.key == pygame.K_BACKSPACE:
                 self.input_text = self.input_text[:-1]
                 if len(self.input_text) != 0:
-                    self.type_function(int(self.input_text))
+                    self.type_function(int(self.input_text)) # type function is self.update_room_number(input box content)
 
             else:
                 try:
+                    # check that input is int and 0-50, otherwise error
                     if (int(self.input_text + event.unicode) >= 0 and int(self.input_text + event.unicode) < 51):
                         self.error = False
                         self.input_text += event.unicode
@@ -144,9 +146,9 @@ class InputBox():
         instruction = self.font.render("Type number of rooms to generate and press Enter", True, '#FFFFFF')
         error = self.font.render("Pick a number between 0-50", True, '#FF0000')
         
-        if self.error:
+        if self.error: # render error when error
             self.screen.blit(error, (300,15))
-        if self.state == 'startscreen':
+        if self.state == 'startscreen': # render instructions only on start screen
             self.screen.blit(instruction, (200,400))
 
 

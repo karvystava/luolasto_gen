@@ -6,6 +6,7 @@ from items import Room, Passage
 class Map():
     def __init__(self, screen, screen_w, screen_h, buffer, room_number, colors):
 
+        # grid + inherited dimensions etc
         self.grid = np.full(784, 2, dtype=int).reshape(28, 28)
         self.screen = screen
         self.screen_w = screen_w
@@ -14,6 +15,7 @@ class Map():
         self.colors = colors
         self.buffer = buffer #16
 
+        # map objects the algorithms need
         self.nodes = []
         self.rooms = [] 
         self.mids = []
@@ -22,16 +24,19 @@ class Map():
         self.hallways = {}
         self.grid_lines = []
 
+        # create map objects with algorithms
         self.create_grid_lines()
         self.create_rooms()
-        print(self.grid)
-        self.create_passages(triangulation(self.mids, self.screen_h, self.screen_w), colors['tri'])
-        self.create_mst(prim(self.passages['psg'], len(self.rooms)), colors['mst'])
-        self.create_a_star(colors['hallways'])
-        print()
-        print(self.grid)
+        #print(self.grid) # grid before hallways
+        self.create_passages(triangulation(self.mids, self.screen_h, self.screen_w), colors['tri']) # make passages with triangulation
+        self.create_mst(prim(self.passages['psg'], len(self.rooms)), colors['mst']) # make minimum spanning tree in triangulation with Prim
+        self.create_a_star(colors['hallways']) # make hallways between mst edges with A* in regards to grid
+        #print()
+        #print(self.grid) # grid after hallways
+        #print()
 
 
+    # divide map surface into grid lines to help visualize
     def create_grid_lines(self):
 
         grid_x = 52
@@ -43,6 +48,7 @@ class Map():
             grid_y += 32
 
 
+    # generate random room dimensions with regards to margin (20), buffer (16), 28x28 grid (divisible by 32)
     def create_rooms(self):
 
         rooms = []
@@ -50,12 +56,13 @@ class Map():
             while True:
 
                 again = False
+
                 h = randrange(48,240,32)
                 w = randrange(48,240,32)
                 x = randrange(20+16, self.screen_w-20-w, 32)
                 y = randrange(20+16, self.screen_h-20-h, 32)
 
-                for room in rooms:
+                for room in rooms: # make sure rooms don't overlap
 
                     x_mez = sorted([(x, w), (room["x"], room["w"])], key=lambda x:x[0], reverse=True)
                     y_mez = sorted([(y, h), (room["y"], room["h"])], key=lambda x:x[0], reverse=True)
@@ -65,31 +72,38 @@ class Map():
 
                 if again:
                     continue
+
                 room_dict = {"h":h, "w":w, "x":x, "y":y}
                 rooms.append(room_dict)
                 break
 
         for room in rooms:
+
+            # create class Room objects and store middle points for visualization
             self.rooms.append(Room(room['x'], room['y'], room['w'], room['h'], self.screen, self.colors, self.buffer))
             self.mids.append((room["x"]+room["w"]/2, room["y"]+room["h"]/2))
 
+            # translate room dimensions and position from pixels to grid
             x = (room['x']-20)//32
             y = (room['y']-20)//32
             w = (room['w']-16)//32
             h = (room['h']-16)//32
             
-            self.grid[y:y+h,x:x+w] = 9
-            self.nodes.append({'pos': (x+w//2, y+h//2), 'g': 1000, 'h': 0.0, 'parent': None, 'cost':9})
+            self.grid[y:y+h,x:x+w] = 9 # add rooms to grid
+            self.nodes.append({'pos': (x+w//2, y+h//2), 'g': 1000, 'h': 0.0, 'parent': None, 'cost':9}) # store middle points as nodes for algorithms
+ 
 
-
+    # store passages as both Passage class objects and just edges for Prim  
     def create_passages(self, passages, color):
-
+ 
         self.passages['psg'] = []
         self.passages['edges'] = set()
         for edge in passages:
             self.passages['psg'].append(Passage(edge[0], edge[1], color, self.screen, 2))
             self.passages['edges'].add(edge)
 
+
+    # store tree as both Passage class objects and just edges for A*
     def create_mst(self, mst, color):
 
         self.tree['psg'] = []
@@ -98,20 +112,23 @@ class Map():
             self.tree['psg'].append(Passage(edge[0], edge[1], self.colors['mst'], self.screen, 2))
             self.tree['edges'].add(edge)
 
+        # add few extra passages from triangulation to make loops
         extra = list(self.passages['edges'] - self.tree['edges'])
         for i in range(len(extra)//5):
             self.tree['psg'].append(Passage(extra[i][0], extra[i][1], color, self.screen, 2))
 
+    # store hallways as both Passage class objects and just edges
     def create_a_star(self, color):
 
         full_grid_path = set()
-
         full_path = set()
-        for _ in range(len(self.nodes)-1):
-            full_path.update(a_star(self.nodes[0], self.nodes[1], self.grid)[0])
-            full_grid_path.update(a_star(self.nodes[0], self.nodes[1], self.grid)[1])
-            self.nodes.pop(0)
 
+        for _ in range(len(self.nodes)-1): # make A* path between all nodes
+            path = a_star(self.nodes[0], self.nodes[1], self.grid)
+
+            full_path.update(path[0])
+            full_grid_path.update(path[1])
+            self.nodes.pop(0) # when A* path created, pop first node from list
 
         self.hallways['psg'] = []
         self.hallways['edges'] = set()
