@@ -120,12 +120,11 @@ def a_star(start, goal, grid):
     # get all paths through the nodes (map) and their cost
     # return cheapest path
 
-
     open_list = [start]
     open_dict = {start['pos']: start}
     closed_list = []
 
-    start['h'] = md(start['pos'], goal['pos'], start['cost']) # h aka the heuristic cost function aka md from formulae.py
+    start['h'] = md(start['pos'], goal['pos'], start['cost'], goal['cost']) # h aka the heuristic cost function aka md from formulae.py
     start['f'] = start['g'] + start['h']
 
     while len(open_list) > 0:
@@ -148,10 +147,10 @@ def a_star(start, goal, grid):
             if n_pos in set([item['pos'] for item in closed_list]):
                 continue
 
-            maybe_g = current['g'] + md(current['pos'], n_pos, current['cost'])
+            maybe_g = current['g'] + md(current['pos'], n_pos, current['cost'], n_cost)
 
             if n_pos not in open_dict:
-                h = md(n_pos, goal['pos'], n_cost)
+                h = md(n_pos, goal['pos'], current['cost'], n_cost)
                 n = {'pos':n_pos, 'g': maybe_g, 'h': h, 'parent': current, 'f': maybe_g+h, 'cost':n_cost}
                 open_list.append(n)
                 open_dict[n_pos] = n
@@ -175,8 +174,8 @@ def reconstruct_path(current, grid):
     while current is not None:
         pres = current['pos']
 
-        if grid[pres[1],pres[0]] != 9:
-            grid[pres[1],pres[0]] = 0 # add new hallway tile to grid unless in a room
+        if grid[pres[1],pres[0]] != 4:
+            grid[pres[1],pres[0]] = 1 # add new hallway tile to grid unless in a room
 
         path.add(current['pos'])
         current = current['parent']

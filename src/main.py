@@ -20,7 +20,7 @@ class DungeonGen():
         self.colors = {
             'bg': '#000000',
             'rooms': '#FFFFFF', 
-            'hallways': '#FFFFFF', 
+            'hallways': "#FFFFFF", #FAD9D9 
             'mst': '#FF007F', 
             'tri':'#80FF00'}
 
@@ -32,7 +32,7 @@ class DungeonGen():
         self.show_rooms = True
         self.show_mid = False
         self.show_triangulation = False
-        self.show_prim = False
+        self.show_prim = True
         self.show_hallways = True
         self.show_grid = False
         self.number_of_rooms = 0
