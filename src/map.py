@@ -27,14 +27,9 @@ class Map():
         # create map objects with algorithms
         self.create_grid_lines()
         self.create_rooms()
-        print(self.grid) # grid before hallways
-        print()
         self.create_passages(triangulation(self.mids, self.screen_h, self.screen_w), colors['tri']) # make passages with triangulation
         self.create_mst(prim(self.passages['psg'], len(self.rooms))) # make minimum spanning tree in triangulation with Prim
         self.create_a_star(colors['hallways']) # make hallways between mst edges with A* in regards to grid
-        print()
-        print(self.grid) # grid after hallways
-        print()
 
 
     # divide map surface into grid lines to help visualize
@@ -96,12 +91,9 @@ class Map():
  
 
     def create_room_node(self, point):
-        print('point on screen', point)
         x = int((point[0]-20)//32-1)
         y = int((point[1]-20)//32-1)
-        print(f'point in grid: ({x},{y})')
         node = {'pos': (x, y), 'g': 1000, 'h': 0.0, 'parent': None, 'cost':4}
-        print(node)
         return node
 
     # store passages as both Passage class objects and just edges for Prim  
@@ -119,28 +111,35 @@ class Map():
 
         self.tree['psg'] = []
         self.tree['edges'] = []
-        edge_set = set()
+        edge_list = []
         for edge in mst:
-            print('edge:', edge)
-            edge_set.add(edge)
+            edge_list.append(edge)
             self.tree['psg'].append(Passage(edge[0], edge[1], self.colors['mst'], self.screen, 2))
             start_node = self.create_room_node(edge[0])
             end_node = self.create_room_node(edge[1])
             grid_edge = (start_node, end_node)
-            print(grid_edge)
             self.tree['edges'].append(grid_edge)
 
         # add few extra passages from triangulation to make loops
-        print()
-        print(self.passages['edges'])
-        print()
-        print(self.tree['edges'])
-        #extra = list(self.passages['edges'] - edge_set)
-        #for i in range(len(extra)//5):
-            #self.tree['psg'].append(Passage(extra[i][0], extra[i][1], '#FAD9D9', self.screen, 2))
-            #start_node = self.create_room_node(extra[i][0])
-            #end_node = self.create_room_node(extra[i][1])
-            #self.tree['edges'].append((start_node, end_node))
+        extra = []
+        j = 0
+        k = 0
+        extra_num = randrange(0, (len(self.passages['edges']) - (len(edge_list)))//7+2) if len(edge_list) > 5 else 0
+        passage_list = list(self.passages['edges'])
+        while k < extra_num and extra_num != 0:
+            edge1 = (passage_list[j][0], passage_list[j][1])
+            edge2 = (passage_list[j][1], passage_list[j][0])
+            if edge1 not in edge_list and edge2 not in edge_list:
+                extra.append(passage_list[j])
+                k += 1
+            j += 1
+
+        i = 0
+        for i in range(extra_num):
+            self.tree['psg'].append(Passage(extra[i][0], extra[i][1], '#FAD9D9', self.screen, 2))
+            start_node = self.create_room_node(extra[i][0])
+            end_node = self.create_room_node(extra[i][1])
+            self.tree['edges'].append((start_node, end_node))
 
     # store hallways as both Passage class objects and just edges
     def create_a_star(self, color):
@@ -150,14 +149,8 @@ class Map():
 
         for edge in self.tree['edges']: # make A* path between all nodes
             path = a_star(edge[0], edge[1], self.grid)
-            print(path[0])
-            print()
-            print(edge)
-            print()
             full_path.update(path[0])
             full_grid_path.update(path[1])
-            print(self.grid)
-            print()
 
         self.hallways['psg'] = []
         self.hallways['edges'] = set()

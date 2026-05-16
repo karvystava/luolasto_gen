@@ -40,27 +40,13 @@ def center(q, p, r):
     return circumcenter
 
 
-def manhattan_distance(a, b, acost, bcost):
+def manhattan_distance(a, b):
 
     # heuristic cost function for A*
-    # manhattan distance because in a grid you can only go straight up, down, left or right
-    # added cost to make it very expensive to go through rooms
-    # and very cheap to use already established hallways
+    # manhattan distance
 
     xs = abs(a[0]-b[0])
     ys = abs(a[1]-b[1])
-    md_cost = None
 
-    if bcost == 0:
-        md_cost = 3
-    elif acost == 4 and bcost == 4:
-        md_cost = 1
-    elif bcost == 1:
-        md_cost = 1
-    elif bcost == 4:
-        md_cost = 8
-    else:
-        md_cost = bcost + 1
-
-    md = (xs + ys) + md_cost
+    md = (xs + ys)
     return md

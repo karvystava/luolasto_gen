@@ -18,6 +18,10 @@ def triangulation(room_points, screen_h, screen_w):
     edges = set()
     triangulation[supertri_edges] = supertri
 
+    if len(room_points) == 2:
+        edges.add((room_points[0], room_points[1]))
+        return edges
+
     for point in room_points:
 
         bad_triangles = set()
@@ -44,8 +48,8 @@ def triangulation(room_points, screen_h, screen_w):
 
     # exclude edges connected to the supertriangle
     for tri_edges, tri in triangulation.items():
-        if len(tri['points'] - set(supertri_points)) == 3:
-            edges.update(tri_edges)
+        add_edges = set([edge for edge in tri_edges if edge[0] not in supertri_points and edge[1] not in supertri_points])
+        edges.update(add_edges)
 
     return edges
 
@@ -124,7 +128,7 @@ def a_star(start, goal, grid):
     open_dict = {start['pos']: start}
     closed_list = []
 
-    start['h'] = md(start['pos'], goal['pos'], start['cost'], goal['cost']) # h aka the heuristic cost function aka md from formulae.py
+    start['h'] = md(start['pos'], goal['pos']) # h aka the heuristic cost function aka md from formulae.py
     start['f'] = start['g'] + start['h']
 
     while len(open_list) > 0:
@@ -140,25 +144,28 @@ def a_star(start, goal, grid):
 
 
         neighbor_positions = neighbors(current['pos'])
+        c_tile = grid[current['pos'][1], current['pos'][0]]
 
         for n_pos in neighbor_positions:
-            n_cost = grid[n_pos[1],n_pos[0]]
+            n_tile = grid[n_pos[1],n_pos[0]]
+
+            cost = 50 if n_tile == 4 else n_tile + 0.5
 
             if n_pos in set([item['pos'] for item in closed_list]):
                 continue
 
-            maybe_g = current['g'] + md(current['pos'], n_pos, current['cost'], n_cost)
+            maybe_g = current['g'] + md(current['pos'], n_pos) + cost
 
             if n_pos not in open_dict:
-                h = md(n_pos, goal['pos'], current['cost'], n_cost)
-                n = {'pos':n_pos, 'g': maybe_g, 'h': h, 'parent': current, 'f': maybe_g+h, 'cost':n_cost}
+                h = md(n_pos, goal['pos'])
+                n = {'pos':n_pos, 'g': maybe_g, 'h': h, 'parent': current, 'f': maybe_g+h}
                 open_list.append(n)
                 open_dict[n_pos] = n
 
             elif maybe_g < open_dict[n_pos]['g']:
                 n = open_dict[n_pos]
                 n['parent'] = current
-                n['g'] = maybe_g
+                n['g'] = maybe_g + cost
                 n['f'] = n['g'] + n['h']
 
 
