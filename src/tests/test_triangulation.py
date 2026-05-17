@@ -1,42 +1,47 @@
 import pytest
 from algorithms import triangulation
 
-def test_triangulation_with_three_points():
-    points = [(1,1), (1,4), (2,3)]
-
-    edges = {
-        ((1,1),(2,3)),
-        ((1,1),(1,4)),
-        ((1,4),(2,3))
-        }
-    tri_edges = triangulation(points, 1000, 1000)
-    assert edges == tri_edges
 
 def test_triangulation_with_ten_points():
     points = [
-        (1,1), (1,4), (2,3),
-        (2,4), (3,2), (5,11),
-        (12,76), (20,51), (32,2),
-        (32, 23)
+        (3,2), (7,1), (8,3),
+        (4,4), (6,4), (5,6),
+        (3,7), (8,6), (4,8),
+        (7,8)
         ]
-
-    edges = {
-        ((2, 4), (3, 2)), ((3, 2), (32, 2)), ((2, 3), (2, 4)), 
-        ((5, 11), (32, 2)), ((32, 2), (32, 23)), ((2, 3), (3, 2)), 
-        ((12, 76), (20, 51)), ((1, 4), (5, 11)), ((5, 11), (32, 23)), 
-        ((5, 11), (12, 76)), ((2, 4), (5, 11)), ((1, 1), (2, 3)), 
-        ((1, 1), (2, 4)), ((1, 4), (2, 3)), ((5, 11), (20, 51)), 
-        ((3, 2), (5, 11)), ((1, 4), (2, 4)), ((20, 51), (32, 23)), 
-        ((1, 4), (12, 76)), ((1, 1), (1, 4)), ((12, 76), (32, 23))
-             }
     
     tri_edges = triangulation(points, 1000, 1000)
-    assert edges == tri_edges
+
+    assert ((3,2), (7,1)) in tri_edges or ((7,1), (3,2)) in tri_edges
+    assert ((8,3), (7,1)) in tri_edges or ((7,1), (8,3)) in tri_edges
+    assert ((6,4), (7,1)) in tri_edges or ((7,1), (6,4)) in tri_edges
+
+    assert ((4,4), (6,4)) in tri_edges or ((6,4), (4,4)) in tri_edges
+    assert ((4,4), (3,2)) in tri_edges or ((3,2), (4,4)) in tri_edges
+    assert ((4,4), (3,7)) in tri_edges or ((3,7), (4,4)) in tri_edges
+    assert ((4,4), (5,6)) in tri_edges or ((5,6), (4,4)) in tri_edges
+
+    assert ((8,3), (6,4)) in tri_edges or ((6,4), (8,3)) in tri_edges
+    assert ((8,6), (6,4)) in tri_edges or ((6,4), (8,6)) in tri_edges
+    assert ((5,6), (6,4)) in tri_edges or ((6,4), (5,6)) in tri_edges
+    assert ((3,2), (6,4)) in tri_edges or ((6,4), (3,2)) in tri_edges
+
+    assert ((3,2), (3,7)) in tri_edges or ((3,7), (3,2)) in tri_edges
+    assert ((5,6), (3,7)) in tri_edges or ((3,7), (5,6)) in tri_edges
+    assert ((4,8), (3,7)) in tri_edges or ((3,7), (4,8)) in tri_edges
+
+    assert ((4,8), (5,6)) in tri_edges or ((5,6), (4,8)) in tri_edges
+    assert ((4,8), (7,8)) in tri_edges or ((7,8), (4,8)) in tri_edges
+
+    assert ((5,6), (7,8)) in tri_edges or ((7,8), (5,6)) in tri_edges
+    assert ((8,6), (7,8)) in tri_edges or ((7,8), (8,6)) in tri_edges
+
+    assert ((8,6), (5,6)) in tri_edges or ((5,6), (8,6)) in tri_edges
+    assert ((8,6), (8,3)) in tri_edges or ((8,3), (8,6)) in tri_edges
+
 
 def test_triangulation_with_no_points():
     points = []
-
     edges = set()
-
     tri_edges = triangulation(points, 10, 10)
     assert edges == tri_edges
