@@ -18,10 +18,6 @@ def triangulation(room_points, screen_h, screen_w):
     edges = set()
     triangulation[supertri_edges] = supertri
 
-    if len(room_points) == 2:
-        edges.add((room_points[0], room_points[1]))
-        return edges
-
     for point in room_points:
 
         bad_triangles = set()
