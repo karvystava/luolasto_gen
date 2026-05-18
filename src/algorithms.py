@@ -67,10 +67,8 @@ def prim(passages, number_of_rooms):
     # edges = {((x1,y1),(x2,xy)) aka the edge : the node it "starts" from}
     edges = {edge : first_vertex for edge in [edge for edge in passages if edge.a == first_vertex or edge.b == first_vertex]}
     vertex = first_vertex
-
     while len(mst) < number_of_rooms-1:
         min_edge, vertex = min(edges.items(), key=lambda item: item[0].d)
-
         new_vertex = min_edge.a if min_edge.a != vertex else min_edge.b
 
         if new_vertex in vertices:

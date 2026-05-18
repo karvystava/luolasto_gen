@@ -1,6 +1,8 @@
 import pytest
 import math
-from algorithms import prim
+from random import randint
+from map import Map
+from algorithms import prim, triangulation
 from items import Passage
 
 def test_prim_with_no_rooms():
@@ -14,95 +16,95 @@ def test_prim_with_no_rooms():
 def test_prim_with_one_room():
     passages = []
     number = 1
-
     mst = set()
 
     assert mst == prim(passages, number)
 
 
-def test_passage_class():
-    edge = ((1,1),(2,3))
-    passage = Passage(edge[0], edge[1], None, None, 2)
-
-    class_info = (passage.a, passage.b, passage.color, passage.screen, passage.w, passage.d)
-    d = math.sqrt((1-2)**2+(1-3)**2)
-    info = ((1,1), (2,3), None, None, 2, d)
-
-    assert info == class_info
-
-
-def test_prim_with_two_rooms():
-    passages = []
-    edges = {((1,1),(2,3))}
-    number = 2
-
-    for edge in edges:
-        passages.append(Passage(edge[0], edge[1], None, None, 2))
-
-    mst = {((1,1), (2,3))}
-
-    assert mst == prim(passages, number)
-
-
-def test_prim_with_three_rooms():
-    passages = []
-    number = 3
-    edges = {
-        ((1,1),(2,3)),
-        ((1,1),(1,4)),
-        ((1,4),(2,3))
+def test_edge_number():
+    colors = {
+        'bg': '#000000',
+        'rooms': '#FFFFFF', 
+        'hallways': "#FFFFFF", #FAD9D9 
+        'mst': '#FF007F', 
+        'tri':'#80FF00'
         }
+    
+    room_amount = randint(1,50)
+    test_map = Map(None, 1000, 1000, 16, room_amount, colors)
+    test_prim = prim(test_map.passages['psg'], room_amount)
 
-    for edge in edges:
-        passages.append(Passage(edge[0], edge[1], None, None, 2))
-
-    mst = {((2,3),(1,4)),((1,1), (2,3))}
-
-    assert mst == prim(passages, number)
+    assert room_amount-1 == len(test_prim)
 
 
 def test_prim_with_ten_rooms():
     passages = []
     number = 10
     edges = {
-        ((2, 4), (3, 2)), ((3, 2), (32, 2)), ((2, 3), (2, 4)), 
-        ((5, 11), (32, 2)), ((32, 2), (32, 23)), ((2, 3), (3, 2)), 
-        ((12, 76), (20, 51)), ((1, 4), (5, 11)), ((5, 11), (32, 23)), 
-        ((5, 11), (12, 76)), ((2, 4), (5, 11)), ((1, 1), (2, 3)), 
-        ((1, 1), (2, 4)), ((1, 4), (2, 3)), ((5, 11), (20, 51)), 
-        ((3, 2), (5, 11)), ((1, 4), (2, 4)), ((20, 51), (32, 23)), 
-        ((1, 4), (12, 76)), ((1, 1), (1, 4)), ((12, 76), (32, 23))
+        ((1, 1), (1, 2)), ((1, 1), (2, 3)), ((1, 1), (4, 3)), 
+        ((1, 2), (2, 3)), ((2, 3), (4, 3)), ((2, 3), (6, 5)), 
+        ((4, 3), (6, 5)), ((4, 3), (9, 5)), ((6, 5), (9, 5)), 
+        ((6, 5), (12, 8)), ((9, 5), (12, 8)), ((9, 5), (16, 8)), 
+        ((12, 8), (16, 8)), ((12, 8), (20, 12)), ((16, 8), (20, 12)),
+        ((16, 8), (25,12)), ((20,12),(25,12)) 
              }
 
     for edge in edges:
         passages.append(Passage(edge[0], edge[1], None, None, 2))
 
     mst = {
-         ((2,4),(2,3)),((2,4),(1,4)),((32, 2), (32, 23)),
-         ((32, 23), (20, 51)),((20, 51), (12, 76)),((2, 3), (3, 2)),
-         ((2, 3), (1, 1)), ((5,11),(32,2)),((2,4),(5,11))
-         }         
+        ((4, 3), (2, 3)), ((2, 3), (1, 2)), ((20, 12), (25, 12)), 
+        ((4, 3), (6, 5)), ((12, 8), (16, 8)), ((16, 8), (20, 12)), 
+        ((1, 2), (1, 1)), ((9, 5), (12, 8)), ((6, 5), (9, 5))
+        }
+    test_prim = prim(passages, number)
 
-    assert mst == prim(passages, number)
+    assert test_prim == mst
 
 
 def test_through_all_rooms():
-    passages = []
-    number = 3
-    prim_points = set()
-    points = set([(1,1), (1,4), (2,3)])
-    edges = {
-        ((1,1),(2,3)),
-        ((1,1),(1,4)),
-        ((1,4),(2,3))
-        }
-    
+
+    node_set = set()
+    while True:
+        if len(node_set) == 200:
+            break
+        node_set.add((randint(1,1000), randint(1,1000)))
+
+    nodes = list(node_set)
+    all_edges_tri = triangulation(nodes, 1000, 1000)
+
+    all_edges = []
+    for edge in all_edges_tri:
+        all_edges.append(Passage(edge[0], edge[1], None, None, 2))
+
+    edges = prim(all_edges, 200)
+
+    d = DFS(nodes)
+
     for edge in edges:
-        passages.append(Passage(edge[0], edge[1], None, None, 2))
+        d.add_edge(edge[0], edge[1])
 
-    prim_mst = prim(passages, number)
-    for passage in prim_mst:
-        for point in passage:
-            prim_points.add(point)
+    assert d.search(nodes[0]) == set(nodes)
+    
 
-    assert points == prim_points
+class DFS():
+    def __init__(self, nodes):
+        self.nodes = nodes
+        self.graph = {node: [] for node in nodes}
+
+    def add_edge(self, a, b):
+        self.graph[a].append(b)
+        self.graph[b].append(a)
+
+    def visit(self, node):
+        if node in self.visited:
+            return
+        self.visited.add(node)
+
+        for next_node in self.graph[node]:
+            self.visit(next_node)
+
+    def search(self, start_node):
+        self.visited = set()
+        self.visit(start_node)
+        return self.visited

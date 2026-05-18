@@ -26,7 +26,7 @@ class Map():
 
         # create map objects with algorithms
         self.create_grid_lines()
-        self.create_rooms()
+        self.create_rooms(self.generate_rooms(room_number))
         self.create_passages(triangulation(self.mids, self.screen_h, self.screen_w), colors['tri']) # make passages with triangulation
         self.create_mst(prim(self.passages['psg'], len(self.rooms))) # make minimum spanning tree in triangulation with Prim
         self.create_a_star(colors['hallways']) # make hallways between mst edges with A* in regards to grid
@@ -45,10 +45,9 @@ class Map():
 
 
     # generate random room dimensions with regards to margin (20), buffer (16), 28x28 grid (divisible by 32)
-    def create_rooms(self):
-
+    def generate_rooms(self, number):
         rooms = []
-        for _ in range(self.room_number):
+        for _ in range(number):
             while True:
 
                 again = False
@@ -73,8 +72,11 @@ class Map():
                 rooms.append(room_dict)
                 break
 
-        for room in rooms:
+        return rooms
 
+    def create_rooms(self, rooms):
+
+        for room in rooms:
             # create class Room objects and store middle points for visualization
             self.rooms.append(Room(room['x'], room['y'], room['w'], room['h'], self.screen, self.colors, self.buffer))
             self.mids.append((room["x"]+room["w"]/2, room["y"]+room["h"]/2))

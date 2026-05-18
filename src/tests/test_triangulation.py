@@ -38,6 +38,7 @@ def test_triangulation_with_ten_points():
 
     assert ((8,6), (5,6)) in tri_edges or ((5,6), (8,6)) in tri_edges
     assert ((8,6), (8,3)) in tri_edges or ((8,3), (8,6)) in tri_edges
+    assert len(tri_edges) == 20
 
 
 def test_triangulation_with_no_points():
