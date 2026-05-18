@@ -1,5 +1,6 @@
 
 import math
+import heapq as hq
 from formulae import center, manhattan_distance as md
 
 
@@ -118,48 +119,42 @@ def a_star(start, goal, grid):
     # get all paths through the nodes (map) and their cost
     # return cheapest path
 
-    open_list = [start]
-    open_dict = {start['pos']: start}
-    closed_list = []
-
     start['h'] = md(start['pos'], goal['pos']) # h aka the heuristic cost function aka md from formulae.py
     start['f'] = start['g'] + start['h']
 
-    while len(open_list) > 0:
-        open_list.sort(key=lambda item : item['f'])
+    open_list = [(start['f'], start['pos'])]
+    open_dict = {start['pos']: start}
+    closed_list = set()
 
-        current = open_list[0]
+    while len(open_list) > 0:
+        f, c_pos = hq.heappop(open_list)
+        current = open_dict[c_pos]
 
         if current['pos'] == goal['pos']:
             return reconstruct_path(current, grid)
         
-        open_list.pop(0)
-        closed_list.append(current)
+        closed_list.add(current['pos'])
 
 
         neighbor_positions = neighbors(current['pos'])
-        c_tile = grid[current['pos'][1], current['pos'][0]]
 
         for n_pos in neighbor_positions:
-            n_tile = grid[n_pos[1],n_pos[0]]
 
-            cost = 50 if n_tile == 4 else n_tile + 0.5
-
-            if n_pos in set([item['pos'] for item in closed_list]):
+            if n_pos in closed_list:
                 continue
 
-            maybe_g = current['g'] + md(current['pos'], n_pos) + cost
+            maybe_g = current['g'] + md(current['pos'], n_pos)
 
             if n_pos not in open_dict:
                 h = md(n_pos, goal['pos'])
                 n = {'pos':n_pos, 'g': maybe_g, 'h': h, 'parent': current, 'f': maybe_g+h}
-                open_list.append(n)
+                open_list.append((n['f'], n_pos))
                 open_dict[n_pos] = n
 
             elif maybe_g < open_dict[n_pos]['g']:
                 n = open_dict[n_pos]
                 n['parent'] = current
-                n['g'] = maybe_g + cost
+                n['g'] = maybe_g
                 n['f'] = n['g'] + n['h']
 
 
