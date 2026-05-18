@@ -5,7 +5,7 @@ Ohjelma käynnistyy main.py-tiedostosta, jossa on toteutettu DungeonGen
  
 Ohjelman tietorakenteiden manageroiminen tapahtuu map.py-tiedostossa, jossa Map-luokkaolio luo uuden sokkelokartan ja sen oliot, kuten huoneet, reitit, käytävät ja apugridin. Huoneiden generointi tapahtuu täällä.
  
-Näiden olioiden luomista varten Map-luokan funktiot kutsuvat algorithms.py-tiedoston algoritmeja, jotka hoitavat triangulaation, mst:n ja A*-reitin.
+Näiden olioiden luomista varten Map-luokan funktiot kutsuvat algorithms.py-tiedoston algoritmeja, jotka hoitavat triangulaation, mst:n ja A*-reitin. (Hox. aiemmin mukana ollut huoneita kiertävä ominaisuus on tietoisesti poistettu A*:den toiminnasta funktion rekonfiguroinnin yhteydessä.)
 
 Triangulaation ja A*:den apuna tiedostosta formulae.py löytyy matemaattisia funktioita, esimerkiksi A*:den heuristinen funktio Manhattan Distance.
 
