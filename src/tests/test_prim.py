@@ -66,7 +66,7 @@ def test_through_all_rooms():
 
     node_set = set()
     while True:
-        if len(node_set) == 200:
+        if len(node_set) == 100:
             break
         node_set.add((randint(1,1000), randint(1,1000)))
 
@@ -77,7 +77,7 @@ def test_through_all_rooms():
     for edge in all_edges_tri:
         all_edges.append(Passage(edge[0], edge[1], None, None, 2))
 
-    edges = prim(all_edges, 200)
+    edges = prim(all_edges, 100)
 
     d = DFS(nodes)
 

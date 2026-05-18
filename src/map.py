@@ -95,7 +95,7 @@ class Map():
     def create_room_node(self, point):
         x = int((point[0]-20)//32-1)
         y = int((point[1]-20)//32-1)
-        node = {'pos': (x, y), 'g': 1000, 'h': 0.0, 'parent': None, 'cost':4}
+        node = {'pos': (x, y), 'g': 0.0, 'h': 0.0, 'parent': None, 'cost':4}
         return node
 
     # store passages as both Passage class objects and just edges for Prim  

@@ -69,6 +69,7 @@ def prim(passages, number_of_rooms):
     edges = {edge : first_vertex for edge in [edge for edge in passages if edge.a == first_vertex or edge.b == first_vertex]}
     vertex = first_vertex
     while len(mst) < number_of_rooms-1:
+
         min_edge, vertex = min(edges.items(), key=lambda item: item[0].d)
         new_vertex = min_edge.a if min_edge.a != vertex else min_edge.b
 
@@ -82,6 +83,7 @@ def prim(passages, number_of_rooms):
     
         for edge in [edge for edge in passages if edge.a == new_vertex or edge.b == new_vertex]:
             b = edge.a if edge.a != new_vertex else edge.b
+
             if b not in vertices:
                 edges[edge] = new_vertex
 
@@ -124,23 +126,21 @@ def a_star(start, goal, grid):
 
     open_list = [(start['f'], start['pos'])]
     open_dict = {start['pos']: start}
-    closed_list = set()
+    closed_set = set()
 
     while len(open_list) > 0:
+
         f, c_pos = hq.heappop(open_list)
         current = open_dict[c_pos]
 
         if current['pos'] == goal['pos']:
             return reconstruct_path(current, grid)
         
-        closed_list.add(current['pos'])
-
+        closed_set.add(current['pos'])
 
         neighbor_positions = neighbors(current['pos'])
-
         for n_pos in neighbor_positions:
-
-            if n_pos in closed_list:
+            if n_pos in closed_set:
                 continue
 
             maybe_g = current['g'] + md(current['pos'], n_pos)
@@ -151,7 +151,7 @@ def a_star(start, goal, grid):
                 open_list.append((n['f'], n_pos))
                 open_dict[n_pos] = n
 
-            elif maybe_g < open_dict[n_pos]['g']:
+            elif maybe_g < current['g']:
                 n = open_dict[n_pos]
                 n['parent'] = current
                 n['g'] = maybe_g
@@ -163,9 +163,10 @@ def reconstruct_path(current, grid):
     # reconstructing best path given by A* into sets of nodes and edges
     # current = best path according to A*
 
-    path = set() # path in grid terms (to make testing and debugging easier)
+    path = [] # path in grid terms (to make testing and debugging easier)
     path_as_edges = set() # path as pixel edges for map
     pres = None
+    current_length = current['g']
 
     while current is not None:
         pres = current['pos']
@@ -173,7 +174,7 @@ def reconstruct_path(current, grid):
         if grid[pres[1],pres[0]] != 4:
             grid[pres[1],pres[0]] = 1 # add new hallway tile to grid unless in a room
 
-        path.add(current['pos'])
+        path.append(current['pos'])
         current = current['parent']
 
         if current != None:
@@ -181,4 +182,4 @@ def reconstruct_path(current, grid):
             edge = (pres[0]*32+67.75, pres[1]*32+67.75), (current['pos'][0]*32+67.75, current['pos'][1]*32+67.75)
             path_as_edges.add(edge)
 
-    return tuple(path_as_edges), tuple(path)
+    return tuple(path_as_edges), tuple(path), current_length
